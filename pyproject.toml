@@ -1,0 +1,69 @@
+[project]
+name = "odb4py"
+version = "1.1.0"
+
+description = "Python extension to read the ECMWF ODB1 format"
+readme = "README.md"
+requires-python = ">=3.9"
+
+authors = [
+    { name = "Idir Dehmous", email = "idehmous@meteo.be" }
+     ]
+license = { text = "Apache-2.0" }
+
+keywords = [
+  "ECMWF",
+  "ODB",
+  "meteorology",
+  "python",
+  "database",
+  "extension"
+]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Atmospheric Science",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.11",
+  "Operating System :: POSIX :: Linux"
+]
+
+[project.urls]
+Homepage      = "https://github.com/idirdehmous/odb4py_1.1.0"
+Source        = "https://github.com/idirdehmous/odb4py_1.1.0"
+Documentation = "https://github.com/idirdehmous/odb4py/blob/main/README.md"
+
+[build-system]
+requires = [
+  "scikit-build-core>=0.5.1",
+  "numpy>=2.4",
+  "setuptools",
+  "wheel",
+  "packaging>=23"
+]
+build-backend = "scikit_build_core.build"
+
+
+
+[tool.scikit-build]
+build.verbose     = true
+cmake.args        = ["-G", "Unix Makefiles"]  
+cmake.source-dir  = "."
+wheel.install-dir = "odb4py"
+
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y flex flex-devel bison &&  source /opt/rh/devtoolset-10/enable"
+
+
+[tool.cibuildwheel]
+archs = ["x86_64"]
+build = "cp39-* cp310-* cp311-* cp312-*"
+skip = "*musllinux*"
+manylinux-x86_64-image = "manylinux2014"
+build-verbosity = 1
