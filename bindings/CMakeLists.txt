@@ -1,4 +1,5 @@
-# pycc/CMakeLists.txt : Compile the C/Python  extension 
+# CMakeLists.txt : Compile the C/Python  extension 
+
 execute_process( COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.get_include())"
     OUTPUT_VARIABLE NumPy_INCLUDE_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE )
