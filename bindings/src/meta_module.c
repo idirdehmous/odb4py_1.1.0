@@ -23,11 +23,11 @@ static PyObject* odbMeta_info(PyObject *self, PyObject *Py_UNUSED(ignored)) {
 }
 
 
-// Méthode stub pour initialiser des variables ODB
+// 
 /*static PyObject* odbMeta_env(PyObject *self, PyObject *Py_UNUSED(ignored)) {
-    // Ici tu pourrais initialiser des variables env spécifiques à ODB
-    // Par exemple : setenv("ODB_IO_METHOD", "default", 0);
-    // Pour l'instant, on renvoie juste un message
+    //  set env variable for ODB 
+    //  setenv("ODB_IO_METHOD", "default", 0);
+    // 
     return Py_BuildValue("s", "ODB environment stub initialized.");
 }*/
 

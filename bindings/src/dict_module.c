@@ -1,5 +1,4 @@
 #define PY_SSIZE_T_CLEAN
-#define NPY_NO_DEPRECATED_API NPY_2_0_API_VERSION
 //NUMPY API 
 #include <numpy/arrayobject.h>
 #include <numpy/ndarraytypes.h>
@@ -26,7 +25,6 @@ static PyObject *odbDict_method(PyObject *Py_UNUSED(self),
                                  PyObject *kwargs) {
 
     // Arguments keywords
-    import_array()  ;
     char *database  = NULL;
     char *sql_query = NULL;
     int   fcols     = 0;

@@ -1,6 +1,4 @@
 #define PY_SSIZE_T_CLEAN
-#define NPY_NO_DEPRECATED_API NPY_2_0_API_VERSION
-
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <math.h>
@@ -87,7 +85,6 @@ void sp_dists(double *u, double *v, double *uout, double *vout, int *n, double *
 
 static PyObject* odbGcdistance_method( PyObject* Py_UNUSED(self) , PyObject* args)
 {
-    import_array()
     PyObject      *lon1_obj  , *lat1_obj , *lon2_obj, *lat2_obj;
     PyArrayObject *lon1      , *lat1     , *lon2    , *lat2    ;
 

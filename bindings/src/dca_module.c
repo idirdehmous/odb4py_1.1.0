@@ -1,5 +1,4 @@
 #define PY_SSIZE_T_CLEAN
-#define NPY_NO_DEPRECATED_API NPY_2_0_API_VERSION
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
@@ -10,7 +9,6 @@
 #include "odb.h"
 #include "privpub.h"
 #include "macros.h"
-#include <numpy/ndarrayobject.h>
 
 
 /* ENDIANESS */
@@ -77,10 +75,12 @@ static PyObject *odbDca_method( PyObject* Py_UNUSED(self) , PyObject *args , PyO
     printf("%s  %s\n" , dca_cpu, " Failed to run dcagen : command returned a non Zero value,  !" ) ;
     return PyLong_FromLong( 1 ) ;
     }else {
+    printf("%s\n" ,"odb4py : ...done !" ) ; 
     free(dca_path) ; 
     free(cma_path) ;
     free(dca_cmd ) ;
     free(dca_args) ;      // deallocate the string  cmd 
     }
+
     return PyLong_FromLong( 0 ) ; 
 }
