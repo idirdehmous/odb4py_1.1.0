@@ -229,7 +229,7 @@ class OdbLexic:
                    " fg_depar":"REAL" }
     def sqliteEncode (self):
         """
-        Empty method :  under building  ! 
+        Empty method :  Not  yet available ! 
         """
         return None
 
