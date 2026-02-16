@@ -17,8 +17,8 @@ The package embeds a customized version of the ECMWF ODB software [odb_api_bundl
 - Native C backend based on ECMWF ODB1
 - Support for IFS and ARPEGE ODB databases
 - SQL-like query interface
-- Fast data access with NumPy and pandas integration
-- manylinux wheels (portable across Linux distributions)
+- Fast data access with [NumPy/C API](https://numpy.org/doc/2.1/reference/c-api/index.html) and pandas integration
+- Manylinux wheels (portable across Linux distributions)
 - No runtime dependency on system ODB or ECMWF bundles
 
 ---
@@ -28,12 +28,12 @@ The package embeds a customized version of the ECMWF ODB software [odb_api_bundl
 The **odb4py** package can be installed from PyPI using `pip`:
 
 ```bash
-pip install odb4py
+pip install odb4py  
 ```
 
 ## Installation test 
-`from odb4py import core  # The C extension` <br>
-`from odb4py import utils # The pure python modules ` 
+`from odb4py import core   # The C extension` <br>
+`from odb4py import utils  # The python module helper` 
 
 
 
@@ -44,13 +44,13 @@ Linux system (manylinux2014 compatible)
 
 ## Scientific context
 ODB (Observation DataBase) is a column-oriented database format developed at ECMWF
-and widely used in numerical weather prediction systems such as IFS,ARPEGE and their canonical configurations.<br>
+and widely used in numerical weather prediction systems such as IFS,ARPEGE and NWP limited are models<br>
 
 **odb4py** is primarily designed for:<br>
 - Meteorologists and atmospheric scientists (especially within the ACCORD consortium)<br>
 - Operational and research environments
 - Post-processing and diagnostic workflows
-- The package focuses on read-only access and data extraction for scientific analysis.
+- The current package version focuses on read-only access and data extraction for scientific analysis.
 
 
 ## License
@@ -61,6 +61,5 @@ Apache License, Version 2.0. [See LICENSE for details ](https://www.apache.org/l
 This project incorporates and is derived from the ECMWF ODB software. <br/>
 
 ODB was developed at the European Centre for Medium-Range Weather Forecasts (ECMWF)
-by [S. Saarinen et al](https://www.ecmwf.int/sites/default/files/elibrary/2004/76278-ifs-documentation-cy36r1-part-i-observation-processing_1.pdf). All rights to the original ODB software remain with ECMWF
-and their respective owners.
+by [S. Saarinen et al](https://www.ecmwf.int/sites/default/files/elibrary/2004/76278-ifs-documentation-cy36r1-part-i-observation-processing_1.pdf). All rights to the original ODB software remain with ECMWF and their respective owners.
 
