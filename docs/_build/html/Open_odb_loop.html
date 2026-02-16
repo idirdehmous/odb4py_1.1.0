@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; odb4py 1.1.0 documentation</title>
+  <title>Using odb4py Inside Loops &mdash; odb4py 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
@@ -18,9 +18,7 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="SQL Query and data retrieval" href="data_retrieval.html" />
-    <link rel="prev" title="Introduction" href="introduction.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,11 +41,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_retrieval.html">SQL Query and data retrieval</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odb_in_python_ecosystem.html">Data structure and integration with python ecosystem</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Before_retrieve.html">Before retriving the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_retrieval.html">SQL Query and Data Retrieval</a></li>
 </ul>
 
         </div>
@@ -64,9 +62,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Installation</li>
+      <li class="breadcrumb-item active">Using odb4py Inside Loops</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/Open_odb_loop.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -74,33 +72,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
-<p>The odb4py package can be installed from PyPi using the pip command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>odb4py
-</pre></div>
-</div>
-<p><strong>Requirements</strong></p>
+  <section id="using-odb4py-inside-loops">
+<h1>Using odb4py Inside Loops<a class="headerlink" href="#using-odb4py-inside-loops" title="Link to this heading"></a></h1>
+<p>ODB databases are frequently used to perform diagnostics and statistical
+analysis over a sequence of dates or time periods. In such workflows,
+looping over dates is therefore a common and necessary practice.</p>
+<p>During these iterations, both the database path and the associated date
+must be updated at each step. If this is not done correctly, odb4py
+may continue to operate on the first opened ODB database. As a result,
+identical rows and values may be returned even though the loop variable
+(e.g. the date) changes.</p>
+<p>This behavior originates from the ODB runtime itself, which relies on a
+set of environment variables defining the active database paths. These
+variables remain persistent across iterations unless explicitly updated.</p>
+<p>To ensure that each iteration accesses the correct database, the
+following ODB environment variables must be updated accordingly:</p>
 <ul class="simple">
-<li><p>3.9   &lt;=  python  &lt;= 3.13</p></li>
-<li><p>numpy &gt;= 2.x.x</p></li>
-<li><p>pandas&gt;= 2.x.x</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ODB_SRCPATH_CCMA</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ODB_DATAPATH_CCMA</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ODB_IDXPATH_CCMA</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOASSIGN</span></code></p></li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <cite>odb</cite> directory included within this package is not identical to the
-official ODB distribution provided in the ECMWF ODB bundle (version 0.18.1).
-For some consistency and optimality reasons with <a class="reference external" href="https://docs.python.org/3/c-api/index.html">C/Python API</a> the original C routines and/or headers have been modified and/or removed.</p>
-</div>
+<p>Updating these variables forces the ODB runtime to reload the correct
+database context and prevents unintended reuse of a previously opened
+ODB.</p>
+<p>Recommended workflow:</p>
+<ol class="arabic simple">
+<li><p>Update the database path and environment variables for the current date.</p></li>
+<li><p>Open the database.</p></li>
+<li><p>Execute the required queries.</p></li>
+<li><p>Close the database before moving to the next iteration.</p></li>
+</ol>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="data_retrieval.html" class="btn btn-neutral float-right" title="SQL Query and data retrieval" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

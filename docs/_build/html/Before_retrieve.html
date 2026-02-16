@@ -1,0 +1,243 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Before retriving the data &mdash; odb4py 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SQL Query and Data Retrieval" href="Data_retrieval.html" />
+    <link rel="prev" title="Installation" href="Installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            odb4py
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Before retriving the data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#opening-an-odb-database">Opening an ODB Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-dca-files-direct-column-access">Creating DCA Files (Direct Column Access)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#database-attributes">Database Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Data_retrieval.html">SQL Query and Data Retrieval</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">odb4py</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Before retriving the data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Before_retrieve.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="before-retriving-the-data">
+<h1>Before retriving the data<a class="headerlink" href="#before-retriving-the-data" title="Link to this heading"></a></h1>
+<p><strong>odb4py</strong> provides two main modules:</p>
+<ul class="simple">
+<li><p><strong>odb4py.core</strong> : A set of low-level functions interfacing Python with the ODB runtime libraries.</p></li>
+<li><p><strong>odb4py.utils</strong>: A collection of pure Python helper utilities, for example to initialize the ODB environment, parse or sanitize SQL queries, and manage auxiliary tasks.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the following examples, a CCMA ODB database is used.
+However, the same code is fully applicable to an ECMA.&lt;obstype&gt; database  where obstype can be : synop, radar, amdar iasi etc.</p>
+</div>
+<section id="opening-an-odb-database">
+<h2>Opening an ODB Database<a class="headerlink" href="#opening-an-odb-database" title="Link to this heading"></a></h2>
+<p>To open a given database, the <code class="docutils literal notranslate"><span class="pre">odbConnect</span></code> function from the
+<code class="docutils literal notranslate"><span class="pre">odb4py.core</span></code> module must be used. This function returns a
+positive value if the connection is successful and a negative
+value if it fails.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w">  </span><span class="nn">odb4py.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdbEnv</span>
+
+<span class="c1"># Initialize the odb4py  environnment</span>
+<span class="n">env</span><span class="o">=</span> <span class="n">odbEnv</span><span class="p">()</span>
+<span class="n">env</span><span class="o">.</span><span class="n">InitEnv</span><span class="p">()</span>
+
+<span class="c1"># Import method</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">odbConnect</span>
+
+<span class="c1"># Path to a CCMA database</span>
+<span class="n">dbpath</span> <span class="o">=</span> <span class="s2">&quot;/imaginary/path/CCMA&quot;</span>
+
+<span class="c1"># Attempt to open the database</span>
+<span class="n">iret</span> <span class="o">=</span> <span class="n">odbConnect</span><span class="p">(</span><span class="n">odbdir</span><span class="o">=</span><span class="n">dbpath</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Check the return code</span>
+<span class="k">if</span> <span class="n">iret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to open the ODB database:&quot;</span><span class="p">,</span> <span class="n">dbpath</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-dca-files-direct-column-access">
+<h2>Creating DCA Files (Direct Column Access)<a class="headerlink" href="#creating-dca-files-direct-column-access" title="Link to this heading"></a></h2>
+<p>In order to retrieve rows and columns efficiently, ODB relies on
+<strong>DCA (Direct Column Access)</strong> files.</p>
+<p>DCA files contain structural metadata describing how the data are
+physically stored on disk. This includes, for example:</p>
+<ul class="simple">
+<li><p>The starting and ending memory segments of a given table,</p></li>
+<li><p>Column sizes,</p></li>
+<li><p>Offsets between tables and columns,</p></li>
+<li><p>Internal layout information required for fast access.</p></li>
+</ul>
+<p>DCA files can be created automatically when using ODB binaries such as
+<code class="docutils literal notranslate"><span class="pre">odbdump.x</span></code> or <code class="docutils literal notranslate"><span class="pre">odbsql.x</span></code>. They can also be generated explicitly
+using the <code class="docutils literal notranslate"><span class="pre">dcagen</span></code> script or the <code class="docutils literal notranslate"><span class="pre">dcagen.x</span></code> binary.</p>
+<p>Within the <strong>odb4py</strong> package, a dedicated function <code class="docutils literal notranslate"><span class="pre">odbDca</span></code> is provided to
+generate DCA files programmatically before executing a query.</p>
+<p>Creating DCA files is straightforward: the user must provide the path
+to the ODB database. The number of CPUs used for the task and the
+verbosity level are optional parameters.</p>
+<p>The generated DCA files are written into a subdirectory named
+<code class="docutils literal notranslate"><span class="pre">dca</span></code> inside the corresponding <code class="docutils literal notranslate"><span class="pre">ECMA</span></code> or <code class="docutils literal notranslate"><span class="pre">CCMA</span></code> directory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w">   </span><span class="nn">odb4py.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdbEnv</span>
+
+<span class="c1"># Initialize the odb4py  environnment</span>
+<span class="n">env</span><span class="o">=</span> <span class="n">odbEnv</span><span class="p">()</span>
+<span class="n">env</span><span class="o">.</span><span class="n">InitEnv</span><span class="p">()</span>
+
+<span class="c1"># Import the  method</span>
+<span class="kn">from</span><span class="w">   </span><span class="nn">odb4py.core</span><span class="w">  </span><span class="kn">import</span> <span class="n">odbDca</span>
+
+<span class="n">db_type</span>  <span class="o">=</span> <span class="s2">&quot;CCMA&quot;</span>
+<span class="n">db_path</span>  <span class="o">=</span> <span class="s2">&quot;/imaginary/path/&quot;</span>
+<span class="n">dca_path</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">(</span> <span class="n">dbpath</span><span class="p">,</span> <span class="n">db_type</span><span class="p">,</span> <span class="s2">&quot;dca&quot;</span> <span class="p">)</span> <span class="p">)</span>
+<span class="n">NCPU</span>     <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c1"># Check if the files existe</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span> <span class="p">(</span><span class="n">dca_path</span> <span class="p">):</span>
+   <span class="n">ic</span> <span class="o">=</span><span class="n">odbDca</span> <span class="p">(</span> <span class="n">db_path</span><span class="o">=</span><span class="n">db_path</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span> <span class="n">db_type</span><span class="p">,</span> <span class="n">ncpu</span><span class="o">=</span> <span class="n">NCPU</span>  <span class="p">)</span>
+   <span class="k">if</span> <span class="n">ic</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">:</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to create DCA files&quot;</span><span class="p">)</span>
+      <span class="n">sys</span><span class="o">.</span><span class="n">exist</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="database-attributes">
+<h2>Database Attributes<a class="headerlink" href="#database-attributes" title="Link to this heading"></a></h2>
+<p>odb4py provides access to internal database metadata through the
+<code class="docutils literal notranslate"><span class="pre">GetAttrib()</span></code> method from <code class="docutils literal notranslate"><span class="pre">utils</span></code> module.</p>
+<p>This method returns a collection of attributes describing the currently
+opened ODB database, including structural and runtime information.</p>
+<p>Example:
+The CCMA ODB used here is provieded by some colleagues working with <a class="reference external" href="https://www.met.no/en/projects/metcoop">MetCoOp</a> limited area model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*-coding :utf-8 -*-</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.utils</span><span class="w"> </span><span class="kn">import</span>  <span class="n">OdbObject</span>
+
+<span class="c1"># ODB Path</span>
+<span class="n">dbpath</span> <span class="o">=</span> <span class="s2">&quot;/imaginary/path/CCMA&quot;</span>
+
+<span class="c1"># Instantiate</span>
+<span class="n">obj</span>  <span class="o">=</span> <span class="n">OdbObject</span><span class="p">(</span> <span class="n">dbpath</span>  <span class="p">)</span>
+<span class="n">attr</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">GetAttrib</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">CCMA</span>
+<span class="n">name</span> <span class="n">CCMA</span>
+<span class="n">obstype</span> <span class="kc">None</span>
+<span class="n">date_creation</span> <span class="mi">20230821</span> <span class="mi">070456</span>
+<span class="n">last_modification</span> <span class="mi">20230821</span> <span class="mi">071418</span>
+<span class="n">Observation_date</span> <span class="mi">20230101</span> <span class="mi">000000</span>
+<span class="n">number_pools</span> <span class="mi">64</span>
+<span class="n">number_of_considered_tables</span> <span class="mi">393</span>
+<span class="n">odb_total_size</span> <span class="mi">83140291</span>
+<span class="n">poolmask</span> <span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">]</span>
+<span class="n">tables</span> <span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="s1">&#39;conv_body&#39;</span><span class="p">,</span> <span class="s1">&#39;desc&#39;</span><span class="p">,</span> <span class="s1">&#39;errstat&#39;</span><span class="p">,</span> <span class="s1">&#39;hdr&#39;</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;modsurf&#39;</span><span class="p">,</span> <span class="s1">&#39;poolmask&#39;</span><span class="p">,</span> <span class="s1">&#39;radar&#39;</span><span class="p">,</span> <span class="s1">&#39;radar_body&#39;</span><span class="p">,</span> <span class="s1">&#39;radar_station&#39;</span><span class="p">,</span> <span class="s1">&#39;radiance&#39;</span><span class="p">,</span> <span class="s1">&#39;radiance_body&#39;</span><span class="p">,</span> <span class="s1">&#39;sat&#39;</span><span class="p">,</span> <span class="s1">&#39;timeslot_index&#39;</span><span class="p">,</span> <span class="s1">&#39;update_1&#39;</span><span class="p">,</span> <span class="s1">&#39;update_10&#39;</span><span class="p">,</span> <span class="s1">&#39;update_2&#39;</span><span class="p">,</span> <span class="s1">&#39;update_3&#39;</span><span class="p">,</span> <span class="s1">&#39;update_4&#39;</span><span class="p">,</span> <span class="s1">&#39;update_5&#39;</span><span class="p">,</span> <span class="s1">&#39;update_6&#39;</span><span class="p">,</span> <span class="s1">&#39;update_7&#39;</span><span class="p">,</span> <span class="s1">&#39;update_8&#39;</span><span class="p">,</span> <span class="s1">&#39;update_9&#39;</span><span class="p">]</span>
+<span class="n">ioassign_file</span> <span class="n">examples</span><span class="o">/</span><span class="n">odb_samples</span><span class="o">/</span><span class="n">metcoop</span><span class="o">/</span><span class="n">CCMA</span><span class="o">//</span><span class="n">IOASSIGN</span>
+<span class="n">flags_file</span> <span class="n">examples</span><span class="o">/</span><span class="n">odb_samples</span><span class="o">/</span><span class="n">metcoop</span><span class="o">/</span><span class="n">CCMA</span><span class="o">//</span><span class="n">CCMA</span><span class="o">.</span><span class="n">flags</span>
+<span class="n">iomap_file</span> <span class="n">examples</span><span class="o">/</span><span class="n">odb_samples</span><span class="o">/</span><span class="n">metcoop</span><span class="o">/</span><span class="n">CCMA</span><span class="o">//</span><span class="n">CCMA</span><span class="o">.</span><span class="n">iomap</span>
+<span class="n">odb_software_release</span> <span class="mi">46</span> <span class="mf">0.000</span> <span class="mi">4</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Data_retrieval.html" class="btn btn-neutral float-right" title="SQL Query and Data Retrieval" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, I.Dehmous.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

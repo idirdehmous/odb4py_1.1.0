@@ -1,0 +1,35 @@
+Using odb4py Inside Loops
+--------------------------
+
+ODB databases are frequently used to perform diagnostics and statistical
+analysis over a sequence of dates or time periods. In such workflows,
+looping over dates is therefore a common and necessary practice.
+
+During these iterations, both the database path and the associated date
+must be updated at each step. If this is not done correctly, odb4py
+may continue to operate on the first opened ODB database. As a result,
+identical rows and values may be returned even though the loop variable
+(e.g. the date) changes.
+
+This behavior originates from the ODB runtime itself, which relies on a
+set of environment variables defining the active database paths. These
+variables remain persistent across iterations unless explicitly updated.
+
+To ensure that each iteration accesses the correct database, the
+following ODB environment variables must be updated accordingly:
+
+- ``ODB_SRCPATH_CCMA``
+- ``ODB_DATAPATH_CCMA``
+- ``ODB_IDXPATH_CCMA``
+- ``IOASSIGN``
+
+Updating these variables forces the ODB runtime to reload the correct
+database context and prevents unintended reuse of a previously opened
+ODB.
+
+Recommended workflow:
+
+1. Update the database path and environment variables for the current date.
+2. Open the database.
+3. Execute the required queries.
+4. Close the database before moving to the next iteration.

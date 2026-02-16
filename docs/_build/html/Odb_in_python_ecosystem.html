@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Structure and Integration with the Python Ecosystem &mdash; odb4py 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            odb4py
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Before_retrieve.html">Before retriving the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_retrieval.html">SQL Query and Data Retrieval</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">odb4py</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Structure and Integration with the Python Ecosystem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Odb_in_python_ecosystem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-structure-and-integration-with-the-python-ecosystem">
+<h1>Data Structure and Integration with the Python Ecosystem<a class="headerlink" href="#data-structure-and-integration-with-the-python-ecosystem" title="Link to this heading"></a></h1>
+<p>The choice to return query results as a Python dictionary is deliberate and central to the design of <strong>odb4py</strong>.</p>
+<p>Using a dictionary provides a flexible and interoperable data structure, where column names are used as keys and the associated values correspond to the retrieved ODB rows. This approach ensures seamless compatibility with modern Python scientific libraries such as <strong>pandas</strong> and <strong>xarray</strong>.</p>
+<p>As a result, the retrieved data can be easily converted into a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> for further analysis and processing.</p>
+<dl class="simple">
+<dt>This enables users to perform:</dt><dd><ul class="simple">
+<li><p>Statistical analysis</p></li>
+<li><p>Data filtering and aggregation</p></li>
+<li><p>Visualization</p></li>
+<li><p>Export to common formats (ODB2, NetCDF…)</p></li>
+<li><p>Integration into operational or research workflows</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:
+Let’s consider the code above by selecting all the observation types.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="o">...</span>
+
+<span class="c1"># SQL request</span>
+<span class="n">sql_query</span> <span class="o">=</span><span class="s2">&quot;SELECT statid , obstype, varno, degrees(lat) ,  degrees(lon) , obsvalue   FROM  hdr, body&quot;</span>
+
+<span class="c1"># Execute SQL query</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">odbDict</span><span class="p">(</span><span class="n">dbpath</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">)</span>
+
+<span class="c1"># Convert to pandas DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="c1">##################################################] Complete 100%  (Total: 57484 rows)</span>
+<span class="n">idx</span>     <span class="n">statid</span><span class="nd">@hdr</span>  <span class="n">obstype</span><span class="nd">@hdr</span>  <span class="n">varno</span><span class="nd">@body</span>  <span class="n">degrees</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>  <span class="n">degrees</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>  <span class="n">obsvalue</span><span class="nd">@body</span>
+<span class="mi">0</span>          <span class="mi">26268</span>            <span class="mi">1</span>           <span class="mi">1</span>     <span class="mf">57.816700</span>     <span class="mf">29.950000</span>       <span class="mf">0.000000</span>
+<span class="mi">1</span>          <span class="mi">26268</span>            <span class="mi">1</span>          <span class="mi">39</span>     <span class="mf">57.816700</span>     <span class="mf">29.950000</span>     <span class="mf">276.200000</span>
+<span class="mi">2</span>          <span class="mi">26268</span>            <span class="mi">1</span>          <span class="mi">58</span>     <span class="mf">57.816700</span>     <span class="mf">29.950000</span>       <span class="mf">0.940000</span>
+<span class="mi">3</span>          <span class="mi">26268</span>            <span class="mi">1</span>           <span class="mi">7</span>     <span class="mf">57.816700</span>     <span class="mf">29.950000</span>       <span class="mf">0.004482</span>
+<span class="mi">4</span>          <span class="mi">26067</span>            <span class="mi">1</span>           <span class="mi">1</span>     <span class="mf">59.433300</span>     <span class="mf">29.500000</span>       <span class="mf">0.000000</span>
+<span class="o">...</span>          <span class="o">...</span>          <span class="o">...</span>         <span class="o">...</span>           <span class="o">...</span>           <span class="o">...</span>            <span class="o">...</span>
+<span class="mi">57479</span>      <span class="n">sekrn</span>           <span class="mi">13</span>          <span class="mi">29</span>     <span class="mf">68.494515</span>     <span class="mf">21.575417</span>       <span class="mf">1.056382</span>
+<span class="mi">57480</span>      <span class="n">sekrn</span>           <span class="mi">13</span>         <span class="mi">192</span>     <span class="mf">68.494515</span>     <span class="mf">21.575417</span>    <span class="o">-</span><span class="mf">327.669993</span>
+<span class="mi">57481</span>      <span class="n">sekrn</span>           <span class="mi">13</span>          <span class="mi">29</span>     <span class="mf">68.494515</span>     <span class="mf">21.575417</span>       <span class="mf">1.034856</span>
+<span class="mi">57482</span>      <span class="n">sekrn</span>           <span class="mi">13</span>         <span class="mi">192</span>     <span class="mf">68.494515</span>     <span class="mf">21.575417</span>    <span class="o">-</span><span class="mf">327.669993</span>
+<span class="mi">57483</span>      <span class="n">sekrn</span>           <span class="mi">13</span>          <span class="mi">29</span>     <span class="mf">68.494515</span>     <span class="mf">21.575417</span>       <span class="mf">0.922010</span>
+
+<span class="p">[</span><span class="mi">57484</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">6</span> <span class="n">columns</span><span class="p">]</span>
+
+<span class="n">Runtime</span> <span class="n">duration</span> <span class="p">:</span> <span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">01.96</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, I.Dehmous.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

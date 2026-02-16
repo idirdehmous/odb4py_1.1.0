@@ -1,28 +1,19 @@
 Installation 
-============
+------------
+
+The odb4py package can be installed from PyPi using the pip command:
 
 .. code-block:: bash
 
-   STEP 0 - download the source code:
+   pip install odb4py
 
-       git clone https://github.com/idirdehmous/pyodb_1.1.0
+**Requirements**
 
+- 3.9   <=  python  <= 3.13 
+- numpy >= 2.x.x
+- pandas>= 2.x.x 
 
-   STEP 1 - FIRST, CREATE A BUILD DIRECTORY TO INSTALL THE ODB LIBRARIES.
-
-       mkdir -p build_odb
-       cd build_odb
-
-       ODB_HOME=/path/to/../../odb/install/dir
-
-       cmake -DCMAKE_INSTALL_PREFIX=${ODB_HOME} /path/to/../../pyodb_1.1.0
-       make -j ncpu      # tested with max 4 CPUs
-       make install
-
-
-   Once the ODB is built and installed, add these environment variables 
-   to your ~/.bashrc file:
-
-       export ODB_INSTALL_DIR=/path/to/../../odb/install/dir
-       export PATH=${PATH}:/path/to/../../odb/install/dir/bin
-       export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/path/to/../../odb/install/dir/lib
+.. note::
+   The `odb` directory included within this package is not identical to the
+   official ODB distribution provided in the ECMWF ODB bundle (version 0.18.1).
+   For some consistency and optimality reasons with `C/Python API <https://docs.python.org/3/c-api/index.html>`_ the original C routines and/or headers have been modified and/or removed. 

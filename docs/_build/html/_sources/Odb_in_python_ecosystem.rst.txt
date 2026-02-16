@@ -1,0 +1,58 @@
+Data Structure and Integration with the Python Ecosystem
+---------------------------------------------------------
+
+The choice to return query results as a Python dictionary is deliberate and central to the design of **odb4py**.
+
+Using a dictionary provides a flexible and interoperable data structure, where column names are used as keys and the associated values correspond to the retrieved ODB rows. This approach ensures seamless compatibility with modern Python scientific libraries such as **pandas** and **xarray**.
+
+As a result, the retrieved data can be easily converted into a ``pandas.DataFrame`` for further analysis and processing.
+
+This enables users to perform:
+ - Statistical analysis
+ - Data filtering and aggregation
+ - Visualization
+ - Export to common formats (ODB2, NetCDF...)
+ - Integration into operational or research workflows
+
+Example:
+Let's consider the code above by selecting all the observation types.
+
+.. code-block:: python
+   
+   #-*- coding: utf-8 -*-
+   import pandas as pd  
+   ...
+
+   # SQL request 
+   sql_query ="SELECT statid , obstype, varno, degrees(lat) ,  degrees(lon) , obsvalue   FROM  hdr, body"
+
+   # Execute SQL query
+   data = odbDict(dbpath, sql_query)
+
+   # Convert to pandas DataFrame
+   df = pd.DataFrame(data)
+   print(df)
+
+
+Output :
+
+.. code-block:: python
+   
+   [##################################################] Complete 100%  (Total: 57484 rows)
+   idx     statid@hdr  obstype@hdr  varno@body  degrees(lat)  degrees(lon)  obsvalue@body
+   0          26268            1           1     57.816700     29.950000       0.000000
+   1          26268            1          39     57.816700     29.950000     276.200000
+   2          26268            1          58     57.816700     29.950000       0.940000
+   3          26268            1           7     57.816700     29.950000       0.004482
+   4          26067            1           1     59.433300     29.500000       0.000000
+   ...          ...          ...         ...           ...           ...            ...
+   57479      sekrn           13          29     68.494515     21.575417       1.056382
+   57480      sekrn           13         192     68.494515     21.575417    -327.669993
+   57481      sekrn           13          29     68.494515     21.575417       1.034856
+   57482      sekrn           13         192     68.494515     21.575417    -327.669993
+   57483      sekrn           13          29     68.494515     21.575417       0.922010
+
+   [57484 rows x 6 columns]
+
+   Runtime duration : 0:00:01.96
+
