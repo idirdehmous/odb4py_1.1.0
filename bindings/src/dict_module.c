@@ -106,13 +106,13 @@ static PyObject *odbDict_method(PyObject *Py_UNUSED(self),
         else if (queryfile)
             printf("Executing query from file   : %s\n", queryfile);
     }
-    //   OPEN ODB ( isolate the thread for pur C . No python object is allowed to be created here .Python  GIL unlocked)
-    //Py_BEGIN_ALLOW_THREADS  
+    //  OPEN ODB
     h = odbdump_open(database, sql_query, queryfile, poolmask, varvalue, &maxcols);
-    //Py_END_ALLOW_THREADS
+    
     if (!h || maxcols <= 0) {
         PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to open ODB or invalid number of columns");
         return NULL  ; }
+
     // Number of columns taking into account the number of functions in the query  (col pure - n columns function)
     int ncols = maxcols - fcols;
     // Allocation 
@@ -147,10 +147,12 @@ static PyObject *odbDict_method(PyObject *Py_UNUSED(self),
         PyErr_SetString(PyExc_RuntimeError, "--odb4py : PyObject dictionary allocation error");
        return NULL  ; 
     }
+
    // Init buffer strings 
    for (int i = 0; i < ncols; ++i) {
     strbufs[i] = (char*)calloc((size_t)total_rows, (size_t)ODB_STRLEN +1);
     }
+
     // Init columns lists 
     for (int i = 0; i < ncols; ++i) {
         col_lists[i] = PyList_New(total_rows);
@@ -186,9 +188,9 @@ static PyObject *odbDict_method(PyObject *Py_UNUSED(self),
             colinfo_t *pci    = &ci[i];
             PyObject  *value  =  NULL ;
            if (print_mdi && pci->dtnum != DATATYPE_STRING && ABS(d[i]) == mdi) {
-         	  value = Py_None  ; 
-                  Py_INCREF(Py_None)  ; 
-
+         	  //value = Py_None  ; 
+                  //Py_INCREF(Py_None)  ;   Gives None in pandas ,not suitable 
+                  value = PyFloat_FromDouble(NAN);   //  use NAN     
           } else {
               switch (pci->dtnum) {
             	case DATATYPE_STRING: {
@@ -200,7 +202,9 @@ static PyObject *odbDict_method(PyObject *Py_UNUSED(self),
 			if ( dst ) 
 			{ value = PyUnicode_FromStringAndSize(dst, strnlen(dst, ODB_STRLEN));			      
 			}else {
-				value = PyUnicode_FromFormat ("NULL    ")  ; 
+				//value = PyUnicode_FromFormat ("NULL    ")  ; 
+                                value = Py_None   ;
+			        Py_INCREF(Py_None);	
 				}
                 break;
 	             }
