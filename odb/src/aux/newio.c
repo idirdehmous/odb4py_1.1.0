@@ -170,15 +170,15 @@ init_IOs()
         //fp = fopen("odb4py.stdout"  ,  "w");
 	printf("********%s*******" , " New ODB I/O opened with the following environment  \n")  ;
         //printf("*** %s:init_IOs() ***\n",__FILE__);
-        printf("\tODB_WRITE_EMPTY_FILES=%d\n",io_write_empty_files);
-        printf("\t  ODB_CONSIDER_TABLES=%s\n",consider_tables);
+        //printf("\tODB_WRITE_EMPTY_FILES=%d\n",io_write_empty_files);
+        //printf("\t  ODB_CONSIDER_TABLES=%s\n",consider_tables);
         printf("\t   ODB_IO_KEEP_INCORE=%d\n",io_keep_incore);
         printf("\t      ODB_IO_FILESIZE=%d MB\n",io_filesize);
         printf("\t       ODB_IO_BUFSIZE=%d bytes\n",io_bufsize);
         printf("\t       ODB_IO_GRPSIZE=%d (or max no. of pools)\n",io_grpsize);
         printf("\t       ODB_IO_PROFILE=%d\n",io_profile);
         printf("\t       ODB_IO_VERBOSE=%d\n",io_verbose);
-        printf("\t        ODB_IO_METHOD=%d\n",io_method);
+        //printf("\t        ODB_IO_METHOD=%d\n",io_method);
         //if (version_env) {
         //  printf("\t          ODB_VERSION=%s (environment variable)\n",version_env);
        // }
