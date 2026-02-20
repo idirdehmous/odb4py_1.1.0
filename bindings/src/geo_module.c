@@ -1,3 +1,20 @@
+/*
+ * The method computing the great circle in this module is based 
+ * on the code found in R package 'sp'  .  
+ * link  :  https://github.com/edzer/sp
+ * Original Author : 
+ * Copyright by Roger Bivand (C) 2005-2009  
+ *
+ *
+ * Readapted to odb4py :
+ * Copyright (C) 2026 Royal Meteorological Institute of Belgium (RMI)
+ * Author : Idir Dehmous 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <numpy/arrayobject.h>
@@ -83,7 +100,7 @@ void sp_dists(double *u, double *v, double *uout, double *vout, int *n, double *
 
 
 
-static PyObject* odbGcdistance_method( PyObject* Py_UNUSED(self) , PyObject* args)
+static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
 {
     PyObject      *lon1_obj  , *lat1_obj , *lon2_obj, *lat2_obj;
     PyArrayObject *lon1      , *lat1     , *lon2    , *lat2    ;
@@ -174,3 +191,9 @@ static PyObject* odbGcdistance_method( PyObject* Py_UNUSED(self) , PyObject* arg
     Py_DECREF(lon2);
     return (PyObject*)distmat;
 }
+
+
+
+
+
+
