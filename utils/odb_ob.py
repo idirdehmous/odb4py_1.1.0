@@ -7,7 +7,6 @@ import sys , os
 import re
 from   glob         import glob
 
-
 __all__=["OdbObject"]
 
 
