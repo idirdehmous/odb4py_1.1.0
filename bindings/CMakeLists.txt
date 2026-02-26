@@ -11,7 +11,6 @@ message(STATUS "NumPy include dir: ${NumPy_INCLUDE_DIR}")
 # Create the  odb4py  C extension   
 add_library(   core    MODULE  main.c  )
 
-
 # Inclure les headers Python + headers ODB
 target_include_directories(core  PRIVATE  ${Python3_INCLUDE_DIRS}     ${NumPy_INCLUDE_DIR}     ${CMAKE_SOURCE_DIR}/include )
 
