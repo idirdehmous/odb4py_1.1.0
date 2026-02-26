@@ -7,19 +7,30 @@
 #include "dca_module.h"
 #include "dict_module.h"
 #include "geo_module.h"
+#include "dbarray_module.h"
 
 
 // Define the functions in the modules 
 static PyMethodDef module_methods[] = {
     {"odbConnect",  (PyCFunction)(void(*)(void))    odbConnect_method    , METH_VARARGS | METH_KEYWORDS,  "Create ODB connection object"},
+
     {"odbClose"  ,  (PyCFunction)(void(*)(void))    odbClose_method      , METH_VARARGS | METH_KEYWORDS,  "Close an opened ODB "},
+
     {"odbTables" ,  (PyCFunction)(void(*)(void))    odbTables_method     , METH_VARARGS | METH_KEYWORDS,  "Show all existing ODB tables"},
+
     {"odbVarno"  ,  (PyCFunction)(void(*)(void))    odbVarno_method      , METH_VARARGS | METH_KEYWORDS,  "Print all ODB 'varno' parameters and their description"},
+
     {"odbFunctions",  (PyCFunction)(void(*)(void))  odbFunctions_method  , METH_VARARGS | METH_KEYWORDS,  "Print all the possible functions that could be used in ODB sql statement"},
-    {"odbDict"   ,    (PyCFunction)(void(*)(void))  odbDict_method       , METH_VARARGS | METH_KEYWORDS,  "Fetch ODB rows as a python  dictionnary"},
-    {"odbDca"    ,    (PyCFunction)(void(*)(void))  odbDca_method        , METH_VARARGS | METH_KEYWORDS,  "Create DCA  (Direct Column  Access ) files "},
-    {"odbGcdist" , (PyCFunction)(void(*)(void))  odbGcdistance_method , METH_VARARGS | METH_KEYWORDS,  "Compute great circle distance between numpy lat/lon pairs"},
+
+    {"odbArray"  , (PyCFunction)(void(*)(void))  odbArray_method      , METH_VARARGS | METH_KEYWORDS,  "Fetch ODB rows as a numpy array with optional header(colnames)"} ,
+
+    {"odbDict"   ,    (PyCFunction)(void(*)(void))  odbDict_method    , METH_VARARGS | METH_KEYWORDS,  "Fetch ODB rows as a python  dictionnary"},
+    {"odbDca"    ,    (PyCFunction)(void(*)(void))  odbDca_method      , METH_VARARGS | METH_KEYWORDS,  "Create DCA  (Direct Column  Access ) files "},
+
+    {"odbGcdist" , (PyCFunction)(void(*)(void))  odbGcdist_method , METH_VARARGS | METH_KEYWORDS,  "Compute great circle distance between numpy lat/lon pairs"},
+
     {"version"   , odbMeta_version, METH_NOARGS, "Return the odb4py version."  },
+
     {"info"      , odbMeta_info,    METH_NOARGS, "Return build and Python info."},
 };
 
