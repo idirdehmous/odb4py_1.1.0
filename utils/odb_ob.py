@@ -7,18 +7,10 @@ import sys , os
 import re
 from   glob         import glob
 
-__all__=["OdbObject"]
-
 
 from   .parser       import StringParser
 from   .exceptions   import *
 from   .odb_glossary import OdbLexic
-
-# INSTANTIATE 
-m=pyodbErrMessage()
-msg_err=m._ErrMsg()
-
-lex=OdbLexic ()
 
 
 
@@ -28,7 +20,6 @@ class OdbObject:
         if not os.path.isdir(path):
            raise FileNotFoundError ("Path to ODB not found ")
            sys.exit(0)
-
         self.path   = path
         self.attrs = None 
 
