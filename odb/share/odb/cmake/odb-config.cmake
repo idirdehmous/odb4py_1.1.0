@@ -69,12 +69,15 @@ endif()
 include( ${CMAKE_CURRENT_LIST_FILE}.tpls OPTIONAL )
 
 # insert definitions for IMPORTED targets
+
 if( NOT odb_BINARY_DIR )
+
   if( ODB_IS_BUILD_DIR_EXPORT )
-    include( "/hpcperm/cvah/odb/odb4py_1.1.0/build_odb/pyodb-targets.cmake" OPTIONAL )
+    include( "/hpcperm/cvah/odb/pyodb_0.1.0/build_odb/pyodb-targets.cmake" OPTIONAL )
   else()
     include( "${ODB_CMAKE_DIR}/odb-targets.cmake" OPTIONAL )
   endif()
+
 endif()
 
 # publish this file as imported
