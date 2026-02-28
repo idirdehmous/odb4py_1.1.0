@@ -6,6 +6,19 @@ typedef struct {
 
 
 
+static int
+is_blank_string(const char *s)
+{
+    if (!s) return 1;
+
+    while (*s) {
+        if (!isspace((unsigned char)*s))
+            return 0;   //  find a character 
+        s++;
+    }
+    return 1;           // spaces only 
+}
+
 static SQLBuilder *
 sqlbuilder_new(void)
 {
