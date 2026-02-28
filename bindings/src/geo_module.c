@@ -208,7 +208,7 @@ static PyObject *odbGeopoints_method(PyObject *Py_UNUSED(self) , PyObject *args,
 {
     char *database  = NULL;
     char *sql_cond  = NULL;
-    char *unit      = "radians";
+    char *unit      = "degrees";
     int fmt_float = 15;
 
     Bool lpbar   = false;
@@ -322,7 +322,7 @@ PyDict_SetItemString(key_args, "pbar",     lpbar   ? Py_True : Py_False);
 // Verbosity 
 PyDict_SetItemString(key_args, "verbose",  verbose ? Py_True : Py_False);
 
-// Quick print of the PyObject dict //PyObject_Print( key_args , stdout , 0 ) ; 
+// Quick check /print of the PyObject dict //PyObject_Print( key_args , stdout , 0 ) ; 
 
 
 // Create empty tuple as posional arguments 
