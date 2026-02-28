@@ -19,6 +19,8 @@ ecbuild_add_executable(TARGET odb98.x SOURCES odb98.c LIBS odbsqlcompiler  )
 #set_target_properties(odb98.x PROPERTIES LINKER_LANGUAGE Fortran) 
 #target_link_libraries(odb98.x  gfortran quadmath)
 
+# This line has been added to fix linking while compiling with cibuildwheel
+# Otherwise il fails to create odb98.x   :-/
 set_target_properties(odb98.x PROPERTIES  LINKER_LANGUAGE Fortran  LINK_FLAGS "-Wl,--no-as-needed" )
 target_link_libraries(odb98.x gfortran quadmath)
 
