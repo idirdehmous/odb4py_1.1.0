@@ -13,7 +13,6 @@ esac
 # PATH 
 export PATH
 # The Other vars 
-export  ODB_BEBINPATH=${BIN_DIR}
 export  ODB_FEBINPATH=${BIN_DIR}
+export  ODB_BEBINPATH=${BIN_DIR}
 export  ODB_SYSPATH=${BIN_DIR}
-
