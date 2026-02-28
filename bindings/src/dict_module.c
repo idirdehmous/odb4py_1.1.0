@@ -1,13 +1,3 @@
-/*
- * odb4py
- * Copyright (C) 2026 Royal Meteorological Institute of Belgium (RMI)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- */
-
 #define PY_SSIZE_T_CLEAN
 //NUMPY API 
 #include <numpy/arrayobject.h>
@@ -94,16 +84,6 @@ static PyObject *odbDict_method(PyObject *Py_UNUSED(self),
     if ( total_rows ==0 ) {
       PyErr_SetString(PyExc_RuntimeError, "--odb4py : The SQL request returned zero rows.");  
       return NULL ;  }
-    if (total_rows == 0)
-    {
-        // Specific Exception to  catche in python 
-        PyErr_Format(PyOdbEmptyResultError,
-                     "odb4py : SQL query returned zero rows "
-                     "(database=%s, query=\"%s\")",
-                     database ? database : "(null)",
-                     sql_query ? sql_query : "(null)");
-        return NULL;
-    }
 
     if (total_rows <= 0) total_rows = 4096;   // Fallback  
 
