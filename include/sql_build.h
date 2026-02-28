@@ -5,6 +5,7 @@ typedef struct {
 
 
 
+
 static SQLBuilder *
 sqlbuilder_new(void)
 {
