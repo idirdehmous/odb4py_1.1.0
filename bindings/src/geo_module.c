@@ -1,28 +1,28 @@
-/*
- * The method computing the great circle in this module is based 
- * on the code found in R package 'sp'  .  
- * link  :  https://github.com/edzer/sp
- * Original Author : 
- * Copyright by Roger Bivand (C) 2005-2009  
- *
- *
- * Readapted to odb4py :
- * Copyright (C) 2026 Royal Meteorological Institute of Belgium (RMI)
- * Author : Idir Dehmous 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- */
-
 #define PY_SSIZE_T_CLEAN
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <math.h>
 #include <float.h>
 #define PYPRINT(o)  PyObject_Print(o, stdout, 0); printf("\n");
 
+// Define Pi ifndef 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+// Convert Degree to Radian
+#define DEG2RAD(deg) ((deg) * M_PI / 180.0)
+
+// Convert Radian to Degree
+#define RAD2DEG(rad) ((rad) * 180.0 / M_PI)
+
+// Power 
 #define POWDI(x,i) pow(x,i)
+
+
+
 
 void sp_gcdist(double *lon1, double *lon2, double *lat1, double *lat2, double *dist)
 {
@@ -102,6 +102,7 @@ void sp_dists(double *u, double *v, double *uout, double *vout, int *n, double *
 
 static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
 {
+    import_array()
     PyObject      *lon1_obj  , *lat1_obj , *lon2_obj, *lat2_obj;
     PyArrayObject *lon1      , *lat1     , *lon2    , *lat2    ;
 
@@ -111,13 +112,13 @@ static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
 					&lon2_obj,
 					&lat2_obj)){ 
         
-	PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to parse odbGcdistance arguments ");
+	PyErr_SetString(PyExc_RuntimeError, "--pyodb : Failed to parse odbGcdistance arguments ");
         return NULL;  
     }
 
    
    if ( !lon1_obj || !lat1_obj || !lon2_obj  || !lat2_obj  ) {
-      PyErr_SetString(PyExc_RuntimeError, "--odb4py : 4 Arguments are required");
+      PyErr_SetString(PyExc_RuntimeError, "--pyodb : 4 Arguments are required");
       return NULL;    
    }
 
@@ -126,14 +127,14 @@ static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     // Parse args and DECREF if it fails 
     lon1 = (PyArrayObject*)PyArray_FROM_OTF( lon1_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     if (!lon1) {  
-	PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to parse lon1");    
+	PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lon1");    
 	return NULL;
     }
 
     lat1 = (PyArrayObject*)PyArray_FROM_OTF(lat1_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     if (!lat1) {
        Py_DECREF(lon1);
-       PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to parse lat1");
+       PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lat1");
        return NULL;
        }
 
@@ -141,7 +142,7 @@ static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     if (!lon2) {
        Py_DECREF(lon1);
        Py_DECREF(lat1);
-       PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to parse lon2");
+       PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lon2");
        return NULL;
       }
 
@@ -151,7 +152,7 @@ static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     Py_DECREF(lon1);
     Py_DECREF(lat1);
     Py_DECREF(lon2);
-    PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to parse lat2");
+    PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lat2");
     return NULL;
     }
 
@@ -168,7 +169,7 @@ static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     Py_DECREF(lon1);
     Py_DECREF(lat2);
     Py_DECREF(lon2);
-    PyErr_SetString(PyExc_RuntimeError, "--odb4py : Unable to allocate result for the contigous matrix.");
+    PyErr_SetString(PyExc_RuntimeError, "--pyodb : Unable to allocate result for the contigous matrix.");
     return NULL;
     }
     
@@ -194,6 +195,229 @@ static PyObject* odbGcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
 
 
 
+typedef struct {
+    PyObject *parts;   // liste Python de morceaux SQL
+} SQLBuilder;
+
+static SQLBuilder *
+sqlbuilder_new(void)
+{
+    SQLBuilder *b = PyMem_Malloc(sizeof(SQLBuilder));
+    if (!b) return NULL;
+    b->parts = PyList_New(0);
+    if (!b->parts) {
+        PyMem_Free(b);
+        return NULL;
+    }
+    return b;
+}	
+
+
+static int sqlbuilder_add(SQLBuilder *b, const char *text)
+{
+    PyObject *s = PyUnicode_FromString(text);
+    if (!s) return -1;
+    int rc = PyList_Append(b->parts, s);
+    Py_DECREF(s);
+    return rc;
+}
 
 
 
+static int
+sqlbuilder_addf(SQLBuilder *b, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+
+    va_list args_copy;
+    va_copy(args_copy, args);
+
+    int needed = vsnprintf(NULL, 0, fmt, args_copy);
+    va_end(args_copy);
+
+    if (needed < 0) {
+        va_end(args);
+        return -1;
+    }
+
+    char *buffer = PyMem_Malloc(needed + 1);
+    if (!buffer) {
+        va_end(args);
+        return -1;
+    }
+
+    vsnprintf(buffer, needed + 1, fmt, args);
+    va_end(args);
+
+    PyObject *s = PyUnicode_FromString(buffer);
+    PyMem_Free(buffer);
+
+    if (!s)
+        return -1;
+
+    int rc = PyList_Append(b->parts, s);
+    Py_DECREF(s);
+
+    return rc;
+}
+
+
+
+
+
+
+static PyObject *sqlbuilder_build(SQLBuilder *b)
+{
+    PyObject *empty = PyUnicode_FromString("");
+    if (!empty) return NULL;
+
+    PyObject *sql = PyUnicode_Join(empty, b->parts);
+    Py_DECREF(empty);
+    return sql;
+}
+
+static void sqlbuilder_free(SQLBuilder *b){
+    if (!b) return;
+    Py_XDECREF(b->parts);
+    PyMem_Free(b);
+}
+
+
+
+// Get  geopoints :  lat/lon and obsvalue 
+static PyObject *odbGeopoints_method(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    char *database  = NULL;
+    char *sql_cond  = NULL;
+    char *unit      = "radians";
+    int fmt_float = 15;
+
+    Bool lpbar   = false;
+    Bool verbose = false;
+
+    PyObject *extent_obj = Py_None;
+    PyObject *pbar  = Py_False;
+    PyObject *pverb = Py_False;
+
+
+    static char *kwlist[] = {
+        "database",
+        "sql_cond",
+        "unit",
+        "extent",
+        "fmt_float",
+        "pbar",
+        "verbose",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwargs,
+            "s|ssOiOO",
+            kwlist,
+            &database,
+            &sql_cond,
+            &unit,
+            &extent_obj,
+            &fmt_float,
+            &pbar,
+            &pverb))
+        return NULL;
+
+
+    
+    // Conversion to boolean C variable
+    lpbar   = PyObj_ToBool ( pbar , lpbar      ) ;
+    verbose = PyObj_ToBool ( pverb , verbose   ) ;
+
+    // Number of functions in SQL 
+    int  nfunc = 0 ;
+    // Keywords dict for fetch  
+    PyObject *key_args = PyDict_New();
+
+
+// Declare a new sl statement 
+SQLBuilder *sqlb = sqlbuilder_new();
+if (!sqlb)
+    return PyErr_NoMemory();
+
+// The geo point first select statement 
+// If in degrees 
+if (unit && strcmp(unit,"degrees")==0){
+sqlbuilder_add(sqlb,  "SELECT degrees(lat), degrees(lon), obsvalue FROM hdr, body WHERE 1=1");
+nfunc  = 2  ;   
+} else if (unit && strcmp(unit,"radians")==0  ) {
+sqlbuilder_add(sqlb,  "SELECT lat, lon, obsvalue FROM hdr, body WHERE 1=1");
+nfunc =0  ; 
+}
+
+// Get a subdomain  
+if (extent_obj != Py_None) {
+    if (!PySequence_Check(extent_obj) || PySequence_Size(extent_obj) != 4)
+    {
+        PyErr_SetString(PyExc_ValueError, "--odb4py : extent must be a list : [lon1, lon2, lat1, lat2]");
+        return NULL;
+    }
+
+    // Get bbox 
+    double lon1 = PyFloat_AsDouble(PySequence_GetItem(extent_obj,0));
+    double lon2 = PyFloat_AsDouble(PySequence_GetItem(extent_obj,1));
+    double lat1 = PyFloat_AsDouble(PySequence_GetItem(extent_obj,2));
+    double lat2 = PyFloat_AsDouble(PySequence_GetItem(extent_obj,3));
+
+  // Add SQL boundary box   
+    sqlbuilder_addf(sqlb,
+    " AND lat BETWEEN %.10g AND %.10g"
+    " AND lon BETWEEN %.10g AND %.10g",
+    lat1, lat2, lon1, lon2);
+
+}
+
+
+// Add SQL parts 
+if (sql_cond && strlen(sql_cond) > 0) { 
+   sqlbuilder_addf(sqlb,  " AND %s ", sql_cond);
+}
+
+// Get the SQL statement string and  free 
+PyObject *sql_obj = sqlbuilder_build(sqlb);
+sqlbuilder_free(sqlb);
+
+if (!sql_obj)
+    return NULL;
+const char *geo_sql = PyUnicode_AsUTF8(sql_obj);
+
+
+// Insert to a dict object  
+PyDict_SetItemString(key_args, "sql_query", sql_obj);
+
+// Required 
+PyDict_SetItemString(key_args, "database", PyUnicode_FromString(database));
+PyDict_SetItemString(key_args, "nfunc",PyLong_FromLong(nfunc ));
+
+
+// Optional  args 
+// Format floats
+PyDict_SetItemString(key_args, "fmt_float",PyLong_FromLong(fmt_float));
+// Progress bar  
+PyDict_SetItemString(key_args, "pbar",     lpbar   ? Py_True : Py_False);
+// Verbosity 
+PyDict_SetItemString(key_args, "verbose",  verbose ? Py_True : Py_False);
+
+// Quick print of the PyObject dict //PyObject_Print( key_args , stdout , 0 ) ; 
+
+
+// Create empty tuple as posional arguments 
+PyObject *args_call = PyTuple_New(0);
+
+PyObject *rows   = odbDict_method  ( NULL , args_call , key_args )  ;  
+
+if (!rows ) {
+    Py_DECREF(args_call);
+    return NULL;
+} else {
+ return rows   ;  
+}
+
+}
