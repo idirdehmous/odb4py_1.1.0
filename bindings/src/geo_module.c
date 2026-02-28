@@ -257,8 +257,11 @@ static PyObject *odbGeopoints_method(PyObject *Py_UNUSED(self) , PyObject *args,
 
 // Declare a new sl statement 
 SQLBuilder *sqlb = sqlbuilder_new();
+
 if (!sqlb)
     return PyErr_NoMemory();
+
+
 
 // The geo point first select statement 
 // If in degrees 
@@ -286,15 +289,20 @@ if (extent_obj != Py_None) {
 
   // Add SQL boundary box   
     sqlbuilder_addf(sqlb,
-    " AND lat BETWEEN %.10g AND %.10g"
-    " AND lon BETWEEN %.10g AND %.10g",
+    " AND lat BETWEEN %.10g AND %.10g "
+    " AND lon BETWEEN %.10g AND %.10g ",
     lat1, lat2, lon1, lon2);
 
 }
 
 // Add SQL parts 
-if (sql_cond && strlen(sql_cond) > 0) { 
-   sqlbuilder_addf(sqlb,  " AND %s ", sql_cond);
+//if (sql_cond && strlen(sql_cond) > 0) { 
+//   sqlbuilder_addf(sqlb,  " AND  %s  ", sql_cond);
+//}
+
+// What if the sql_cond is  empty   "  " or ""  
+if (!is_blank_string(sql_cond)) {
+    sqlbuilder_addf(sqlb, " AND (%s)", sql_cond);
 }
 
 // Get the SQL statement string and  free 
@@ -303,9 +311,9 @@ sqlbuilder_free(sqlb);
 
 if (!sql_obj)
     return NULL;
+
 //const char *geo_sql = PyUnicode_AsUTF8(sql_obj);
-
-
+//
 // Insert to a dict object  
 PyDict_SetItemString(key_args, "sql_query", sql_obj);
 
@@ -322,7 +330,7 @@ PyDict_SetItemString(key_args, "pbar",     lpbar   ? Py_True : Py_False);
 // Verbosity 
 PyDict_SetItemString(key_args, "verbose",  verbose ? Py_True : Py_False);
 
-// Quick check /print of the PyObject dict //PyObject_Print( key_args , stdout , 0 ) ; 
+// Quick print of the PyObject dict //PyObject_Print( key_args , stdout , 0 ) ; 
 
 
 // Create empty tuple as posional arguments 
