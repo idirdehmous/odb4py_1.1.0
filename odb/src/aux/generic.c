@@ -67,7 +67,10 @@ ODBc_get_free_handles(int *Maxhandle)
     FREE(penv); \
   } \
 }
-//fprintf(stderr,"%s=%s\n",penv,env?env:NIL); \
+
+// Moved from the macro above 
+//fprintf(stderr,"%s=%s\n",penv,env?env:NIL); 
+
 
 PUBLIC int 
 ODBc_open(const char *dbname, const char *mode, int *npools, int *ntables, const char *poolmask)
