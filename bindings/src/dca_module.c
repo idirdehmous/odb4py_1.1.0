@@ -119,6 +119,7 @@ static PyObject * odbDca_method(PyObject *Py_UNUSED(self), PyObject *args, PyObj
 
   
     // Set number of  CPUs   ( if negative value or not using all system  ressource  , take  _SC_NPROCESSORS_ONLN) 
+    // max available CPUs on the machine 
     if (ncpu < 0   ||  ncpu < sysconf(_SC_NPROCESSORS_ONLN)) { 
       ncpu  =  _SC_NPROCESSORS_ONLN ; 
     }   
@@ -129,6 +130,7 @@ static PyObject * odbDca_method(PyObject *Py_UNUSED(self), PyObject *args, PyObj
 
     // Locate dcagen from env 
     const char *bebin = getenv("ODB_BEBINPATH");
+
 
     // Check path  
     if (!bebin) {
