@@ -44,7 +44,7 @@ liblist=["libodbdummy.so"   ,
 # Path to bin , lib  
 bindir = mod_path +"/bin"
 libdir = mod_path +"/lib"
-libname="libodb.so"        
+libname="libodb.so"         # All needed dynamic symbols are there !
 
 
 class OdbEnv:
@@ -77,7 +77,6 @@ class OdbEnv:
           if os.path.isdir (libdir):
              lib=CDLL ("/".join(    (libdir, libname)    ))
 
-
           if os.path.isdir (bindir):
              new_path = os.environ.copy()["PATH"]+":"+bindir
              os.environ["PATH"] = new_path
@@ -96,7 +95,7 @@ class OdbEnv:
                     os.environ[k] = v
           return None 
 
-
+      # Bins 
       def CheckBin(self):
           not_found = []
           for bin_ in binlist:
@@ -107,7 +106,8 @@ class OdbEnv:
           else:
              return (False , "Binaries ", not_found )
 
-
+   
+      # Libs 
       def CheckLib(self):
           not_found = []
           for lib_ in liblist:
@@ -118,7 +118,7 @@ class OdbEnv:
           else:
              return (False, "Library not found ", not_found )
 
-
+      # update a given ODB var  
       def UpdateVar(self, env_vars):
           """
           Update ODB environment variables.
@@ -137,14 +137,14 @@ class OdbEnv:
                  raise ValueError(f"Invalid ODB environment variable: {key}")
               os.environ[key] = str(value)
 
-
+      # Get a value of a given var  
       def GetVar (self, key, default=None):
           """
           Get an ODB environment variable.
           """
           return os.environ.get(key, default)
 
-
+      # List all ODB env vars 
       def DumpVar(self):
           """
           Return all currently defined ODB_* environment variables.
