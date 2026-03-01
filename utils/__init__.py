@@ -3,11 +3,20 @@
 #
 # Licensed under the Apache License, Version 2.0
 
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
-from  .parser        import StringParser  
+from  .parser        import StringParser
 from  .odb_ob        import OdbObject
-from  .odb_glossary  import OdbLexic 
-from  .setting_env   import OdbEnv  
+from  .odb_glossary  import OdbLexic
+from  .setting_env   import OdbEnv
+
 
 __all__=[ "StringParser", "OdbObject" , "OdbLexic", "OdbEnv" ]
+
+
+# Init once
+if not globals().get("_ODB_ENV_INITIALIZED", False):
+    _env = OdbEnv()
+    _env.Init()
+    _ODB_ENV_INITIALIZED = True
+
