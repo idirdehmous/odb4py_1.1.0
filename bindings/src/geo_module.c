@@ -214,7 +214,11 @@ static PyObject *odbGeopoints_method(PyObject *Py_UNUSED(self) , PyObject *args,
     Bool lpbar   = false;
     Bool verbose = false;
 
-    PyObject *extent_obj = Py_None;
+    // Object  
+    PyObject *poolmask_obj =Py_None ; 
+    PyObject *extent_obj   =Py_None;
+
+    // Boolean  
     PyObject *pbar  = Py_False;
     PyObject *pverb = Py_False;
 
@@ -224,7 +228,8 @@ static PyObject *odbGeopoints_method(PyObject *Py_UNUSED(self) , PyObject *args,
         "sql_cond",
         "unit",
         "extent",
-        "fmt_float",
+	"poolmask",
+        "fmt_float",	
         "pbar",
         "verbose",
         NULL
@@ -232,12 +237,13 @@ static PyObject *odbGeopoints_method(PyObject *Py_UNUSED(self) , PyObject *args,
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwargs,
-            "s|ssOiOO",
+            "s|ssOOiOO",
             kwlist,
             &database,
             &sql_cond,
             &unit,
             &extent_obj,
+	    &poolmask_obj,
             &fmt_float,
             &pbar,
             &pverb))
@@ -248,6 +254,17 @@ static PyObject *odbGeopoints_method(PyObject *Py_UNUSED(self) , PyObject *args,
     // Conversion to boolean C variable
     lpbar   = PyObj_ToBool ( pbar , lpbar      ) ;
     verbose = PyObj_ToBool ( pverb , verbose   ) ;
+
+     // Convert to string
+    const char *poolmask_str = NULL;
+    if (poolmask_obj != Py_None) {
+        if (!PyUnicode_Check(poolmask_obj)) {
+         PyErr_SetString(PyExc_TypeError, "poolmask must be a string.  ex: '1 2 3 N' or '1:N' N=Number of pools'  \n") ;
+         return NULL;
+         }
+     poolmask_str  = PyUnicode_AsUTF8(poolmask_obj);
+    }
+
 
     // Number of functions in SQL 
     int  nfunc = 0 ;
@@ -300,7 +317,7 @@ if (extent_obj != Py_None) {
 //   sqlbuilder_addf(sqlb,  " AND  %s  ", sql_cond);
 //}
 
-// What if the sql_cond is  empty   "  " or ""  
+// What if the  sql_cond is  empty   "  " or ""  
 if (!is_blank_string(sql_cond)) {
     sqlbuilder_addf(sqlb, " AND (%s)", sql_cond);
 }
@@ -311,9 +328,9 @@ sqlbuilder_free(sqlb);
 
 if (!sql_obj)
     return NULL;
-
 //const char *geo_sql = PyUnicode_AsUTF8(sql_obj);
-//
+
+
 // Insert to a dict object  
 PyDict_SetItemString(key_args, "sql_query", sql_obj);
 
@@ -325,8 +342,13 @@ PyDict_SetItemString(key_args, "nfunc",PyLong_FromLong(nfunc ));
 // Optional  args 
 // Format floats
 PyDict_SetItemString(key_args, "fmt_float",PyLong_FromLong(fmt_float));
+
+// Poolmask
+PyDict_SetItemString(key_args, "poolmask"  ,poolmask_obj       );
+
 // Progress bar  
 PyDict_SetItemString(key_args, "pbar",     lpbar   ? Py_True : Py_False);
+
 // Verbosity 
 PyDict_SetItemString(key_args, "verbose",  verbose ? Py_True : Py_False);
 
