@@ -12,6 +12,13 @@
 
 
 
+// Check file exists
+/*static int  file_exists(  const char *path ) {
+struct stat st  ;   
+return ( stat( path , &st ) ==  0 && S_ISREG(st.st_mode))  ;
+}*/
+
+
 // Check dir exists 
 static int dir_exists(const char *path)
 {
@@ -119,7 +126,6 @@ static PyObject * odbDca_method(PyObject *Py_UNUSED(self), PyObject *args, PyObj
 
   
     // Set number of  CPUs   ( if negative value or not using all system  ressource  , take  _SC_NPROCESSORS_ONLN) 
-    // max available CPUs on the machine 
     if (ncpu < 0   ||  ncpu < sysconf(_SC_NPROCESSORS_ONLN)) { 
       ncpu  =  _SC_NPROCESSORS_ONLN ; 
     }   
@@ -130,7 +136,6 @@ static PyObject * odbDca_method(PyObject *Py_UNUSED(self), PyObject *args, PyObj
 
     // Locate dcagen from env 
     const char *bebin = getenv("ODB_BEBINPATH");
-
 
     // Check path  
     if (!bebin) {
@@ -177,7 +182,7 @@ if ( tables &&  PySequence_Check(tables)) {
 }
 
    
-    printf("--odb4py : Creating DCA files ...\n");
+    printf("--odb4py : Creating DCA files...\n");
     // Execute dcagen                                    
     int status= -1;
 
@@ -199,7 +204,7 @@ if ( tables &&  PySequence_Check(tables)) {
     if (status == -1 ||  !WIFEXITED(status) || WEXITSTATUS(status) != 0)
     {
         fprintf(stderr,
-            "--odb4py : dcagen failed\nCommand : %s\n",  cmd);
+            "--odb4py : dcagen failed\nCommand: %s\n",  cmd);
         return PyLong_FromLong(-1);
     }
 
@@ -207,7 +212,7 @@ if ( tables &&  PySequence_Check(tables)) {
     // Check creation                                 
     if (!dir_exists(dca_dir)) {
         fprintf(stderr,
-            "--odb4py : dcagen finished but no DCA directory found.\n");
+            "--odb4py : dcagen finished but no DCA directory found\n");
         return PyLong_FromLong(-1);
     }  else  {
 
