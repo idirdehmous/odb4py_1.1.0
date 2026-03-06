@@ -135,7 +135,7 @@ class OdbObject:
         "last_modification" : modif_date,
         "observation_date"  : obs_dttm,
         "number_pools"      : npool,
-        "odb_total_size"    : self.GetSize(),
+        "odb_total_size"    : str(self.GetSize()) +" (Bytes)"  ,
         "Poolmask"          : self.GetPools(),
         "tables"            : self.GetTables(),
         "ioassign_file"     : self.HasIoassign(type_),
