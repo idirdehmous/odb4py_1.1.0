@@ -1,9 +1,10 @@
 #!/usr/bin/env ksh
 
 
-# Set the path to find  ODB scripts and binaries 
-THIS_FILE=$(realpath "${.sh.file}")
+# Set the path to find  ODB scripts and binaries
+THIS_FILE=$(realpath "$0")
 BIN_DIR=${THIS_FILE%/*}
+
 
 case ":$PATH:" in
   *":$BIN_DIR:"*) ;;
@@ -16,4 +17,3 @@ export PATH
 export  ODB_BEBINPATH=${BIN_DIR}
 export  ODB_FEBINPATH=${BIN_DIR}
 export  ODB_SYSPATH=${BIN_DIR}
-
