@@ -30,18 +30,14 @@ queries from reaching the ODB runtime layer.
 .. code-block:: python
 
    #-*- coding: utf-8 -*-   
-   from odb4py.utils import  OdbEnv ,OdbObject , StringParser 
+   from odb4py.utils import  OdbObject , StringParser 
 
-   # Initialize the ODB environnment first
-   env =OdbEnv()    
-   env.InitEnv()  
-
-   # Import the C/Python module
-   from odb4py import odbDict  
+   # Import the C/Python modules
+   from odb4py.core  import  odbConnect , odbClose ,odbDca ,odbDict  
      
 
    # Path to ODB
-   db_path= "/imaginary/path/../CCMA"
+   db_path= "/path/to/CCMA"
 
    # Let's get the AMDAR data (obstype =2 )
    # The SQL query  
@@ -57,24 +53,31 @@ queries from reaching the ODB runtime layer.
    sql    =p.CleanString ( sql_query  )  
 
    # Arguments 
-   nfunctions = nfunc    # (type -> integer ) Number of columns considring the functions in the sql statement  (degrees, rad, avg etc ...)
-   query_file = None     # (type -> str     ) The sql file if used rather than sql request string 
-   poolmask   = None     # (type -> str     ) The ODB pools to consider (  must be a string  "1" , "2", "33" ...  , etc   )
-   progress   = True     # (type -> bool    ) Progress bar (very useful in the case of huge ODBs )
-   float_fmt  = 5        # (type -> int     ) Number of decimal digits for floats 
-   verbose    = False    # (type -> bool    ) Verbosity  on/off   
+   nfunctions= nfunc    # (type -> integer ) Number of columns considring the functions in the sql statement (degrees, rad, avg etc ...)
+   sql_file  = None     # (type -> str     ) The sql file if used instead of and SQL request string 
+   mask      = None     # (type -> str     ) The ODB pools to consider ( must be a string  "1" , "2", "33" ...  , etc )
+   progress  = True     # (type -> bool    ) Progress bar (very useful in the case of large ODBs )
+   ndigits   = 6        # (type -> int     ) Number of decimal digits for floats 
+   lverb     = False    # (type -> bool    ) Verbosity  on/off   
 
    # Send the query and get the data 
-   data =odbDict  (dbpath ,sql, nfunctions ,float_fmt, query_file , poolmask , progress, verbose  )
+   data =odbDict  (dbpath    =db_path    ,
+                   sql_query =sql        , 
+                   nfunc     =nfunctions ,
+                   fmt_float =ndigits    ,
+                   query_file=sql_file   ,                   
+                   poolmask  =mask       , 
+                   pbar      =progress   , 
+                   verbose   =lverb  )
    print( data ) 
 
  
 Output :
 
-.. code-block:: python 
+.. code-block:: python
 
    ******** New ODB I/O opened with the following environment
-   *******	ODB_WRITE_EMPTY_FILES=0
+   ******* ODB_WRITE_EMPTY_FILES=0
 	  ODB_CONSIDER_TABLES=*
 	   ODB_IO_KEEP_INCORE=1
 	      ODB_IO_FILESIZE=32 MB

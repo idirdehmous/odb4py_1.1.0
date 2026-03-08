@@ -19,8 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Integration with python ecosystem" href="odb_in_python_ecosystem.html" />
-    <link rel="prev" title="Before retriving the data" href="before_retrieve.html" /> 
+    <link rel="prev" title="Creating Column Direct Access Files (DCA)" href="odb_dca.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,10 +45,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="before_retrieve.html">Before retriving the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inspect_odb.html">Inspect the ODB metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_io.html">Open and close an ODB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_dca.html">Creating Column Direct Access Files (DCA)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">SQL Query and data retrieval</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odb_in_python_ecosystem.html">Integration with python ecosystem</a></li>
-<li class="toctree-l1"><a class="reference internal" href="open_odb_loop.html">Using odb4py inside loops</a></li>
 </ul>
 
         </div>
@@ -99,18 +98,14 @@ correctly process and return the requested data.</p>
 <p>This preprocessing stage ensures robustness and prevents malformed SQL
 queries from reaching the ODB runtime layer.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.utils</span><span class="w"> </span><span class="kn">import</span>  <span class="n">OdbEnv</span> <span class="p">,</span><span class="n">OdbObject</span> <span class="p">,</span> <span class="n">StringParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.utils</span><span class="w"> </span><span class="kn">import</span>  <span class="n">OdbObject</span> <span class="p">,</span> <span class="n">StringParser</span>
 
-<span class="c1"># Initialize the ODB environnment first</span>
-<span class="n">env</span> <span class="o">=</span><span class="n">OdbEnv</span><span class="p">()</span>
-<span class="n">env</span><span class="o">.</span><span class="n">InitEnv</span><span class="p">()</span>
-
-<span class="c1"># Import the C/Python module</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">odbDict</span>
+<span class="c1"># Import the C/Python modules</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w">  </span><span class="kn">import</span>  <span class="n">odbConnect</span> <span class="p">,</span> <span class="n">odbClose</span> <span class="p">,</span><span class="n">odbDca</span> <span class="p">,</span><span class="n">odbDict</span>
 
 
 <span class="c1"># Path to ODB</span>
-<span class="n">db_path</span><span class="o">=</span> <span class="s2">&quot;/imaginary/path/../CCMA&quot;</span>
+<span class="n">db_path</span><span class="o">=</span> <span class="s2">&quot;/path/to/CCMA&quot;</span>
 
 <span class="c1"># Let&#39;s get the AMDAR data (obstype =2 )</span>
 <span class="c1"># The SQL query</span>
@@ -126,21 +121,28 @@ queries from reaching the ODB runtime layer.</p>
 <span class="n">sql</span>    <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">CleanString</span> <span class="p">(</span> <span class="n">sql_query</span>  <span class="p">)</span>
 
 <span class="c1"># Arguments</span>
-<span class="n">nfunctions</span> <span class="o">=</span> <span class="n">nfunc</span>    <span class="c1"># (type -&gt; integer ) Number of columns considring the functions in the sql statement  (degrees, rad, avg etc ...)</span>
-<span class="n">query_file</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># (type -&gt; str     ) The sql file if used rather than sql request string</span>
-<span class="n">poolmask</span>   <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># (type -&gt; str     ) The ODB pools to consider (  must be a string  &quot;1&quot; , &quot;2&quot;, &quot;33&quot; ...  , etc   )</span>
-<span class="n">progress</span>   <span class="o">=</span> <span class="kc">True</span>     <span class="c1"># (type -&gt; bool    ) Progress bar (very useful in the case of huge ODBs )</span>
-<span class="n">float_fmt</span>  <span class="o">=</span> <span class="mi">5</span>        <span class="c1"># (type -&gt; int     ) Number of decimal digits for floats</span>
-<span class="n">verbose</span>    <span class="o">=</span> <span class="kc">False</span>    <span class="c1"># (type -&gt; bool    ) Verbosity  on/off</span>
+<span class="n">nfunctions</span><span class="o">=</span> <span class="n">nfunc</span>    <span class="c1"># (type -&gt; integer ) Number of columns considring the functions in the sql statement (degrees, rad, avg etc ...)</span>
+<span class="n">sql_file</span>  <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># (type -&gt; str     ) The sql file if used instead of and SQL request string</span>
+<span class="n">mask</span>      <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># (type -&gt; str     ) The ODB pools to consider ( must be a string  &quot;1&quot; , &quot;2&quot;, &quot;33&quot; ...  , etc )</span>
+<span class="n">progress</span>  <span class="o">=</span> <span class="kc">True</span>     <span class="c1"># (type -&gt; bool    ) Progress bar (very useful in the case of large ODBs )</span>
+<span class="n">ndigits</span>   <span class="o">=</span> <span class="mi">6</span>        <span class="c1"># (type -&gt; int     ) Number of decimal digits for floats</span>
+<span class="n">lverb</span>     <span class="o">=</span> <span class="kc">False</span>    <span class="c1"># (type -&gt; bool    ) Verbosity  on/off</span>
 
 <span class="c1"># Send the query and get the data</span>
-<span class="n">data</span> <span class="o">=</span><span class="n">odbDict</span>  <span class="p">(</span><span class="n">dbpath</span> <span class="p">,</span><span class="n">sql</span><span class="p">,</span> <span class="n">nfunctions</span> <span class="p">,</span><span class="n">float_fmt</span><span class="p">,</span> <span class="n">query_file</span> <span class="p">,</span> <span class="n">poolmask</span> <span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">verbose</span>  <span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span><span class="n">odbDict</span>  <span class="p">(</span><span class="n">dbpath</span>    <span class="o">=</span><span class="n">db_path</span>    <span class="p">,</span>
+                <span class="n">sql_query</span> <span class="o">=</span><span class="n">sql</span>        <span class="p">,</span>
+                <span class="n">nfunc</span>     <span class="o">=</span><span class="n">nfunctions</span> <span class="p">,</span>
+                <span class="n">fmt_float</span> <span class="o">=</span><span class="n">ndigits</span>    <span class="p">,</span>
+                <span class="n">query_file</span><span class="o">=</span><span class="n">sql_file</span>   <span class="p">,</span>
+                <span class="n">poolmask</span>  <span class="o">=</span><span class="n">mask</span>       <span class="p">,</span>
+                <span class="n">pbar</span>      <span class="o">=</span><span class="n">progress</span>   <span class="p">,</span>
+                <span class="n">verbose</span>   <span class="o">=</span><span class="n">lverb</span>  <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
 </pre></div>
 </div>
 <p>Output :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">********</span> <span class="n">New</span> <span class="n">ODB</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">opened</span> <span class="k">with</span> <span class="n">the</span> <span class="n">following</span> <span class="n">environment</span>
-<span class="o">*******</span>      <span class="n">ODB_WRITE_EMPTY_FILES</span><span class="o">=</span><span class="mi">0</span>
+<span class="o">*******</span> <span class="n">ODB_WRITE_EMPTY_FILES</span><span class="o">=</span><span class="mi">0</span>
        <span class="n">ODB_CONSIDER_TABLES</span><span class="o">=*</span>
         <span class="n">ODB_IO_KEEP_INCORE</span><span class="o">=</span><span class="mi">1</span>
            <span class="n">ODB_IO_FILESIZE</span><span class="o">=</span><span class="mi">32</span> <span class="n">MB</span>
@@ -171,8 +173,7 @@ queries from reaching the ODB runtime layer.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="before_retrieve.html" class="btn btn-neutral float-left" title="Before retriving the data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="odb_in_python_ecosystem.html" class="btn btn-neutral float-right" title="Integration with python ecosystem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="odb_dca.html" class="btn btn-neutral float-left" title="Creating Column Direct Access Files (DCA)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

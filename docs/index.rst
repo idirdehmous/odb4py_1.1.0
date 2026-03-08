@@ -7,7 +7,7 @@ odb4py documentation
 
     introduction 
     installation
-    before_retrieve
+    inspect_odb
+    odb_io
+    odb_dca 
     data_retrieval
-    odb_in_python_ecosystem
-    open_odb_loop
