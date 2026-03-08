@@ -1,5 +1,5 @@
 Integration with python ecosystem
-====================================================
+=================================
 
 The choice to return query results as a Python dictionary is deliberate and central to the design of **odb4py**.
 
@@ -13,24 +13,30 @@ This enables users to perform:
  - Visualization
  - Export to common formats (ODB2, NetCDF...)
 
-Example:
 Let's consider the previous code by selecting all the observation types.
 
 .. code-block:: python
    
    #-*- coding: utf-8 -*-
    import pandas as pd  
+   from odb4py.utils  import OdbObject , StringParser  
+   from odb4py.core   import odbDict ,odbConnect,odbClose , odbDca 
    ...
 
    # SQL request 
-   sql_query ="SELECT statid , obstype, varno, degrees(lat) ,  degrees(lon) , obsvalue   FROM  hdr, body"
+   sql_query ="SELECT statid ,varno, degrees(lat), degrees(lon) , obsvalue FROM  hdr, body"
 
    # Execute SQL query
-   data = odbDict(dbpath, sql_query)
+   data = odbDict(dbpath, sql_query, fmt_float=6 , pbar=True )
 
    # Convert to pandas DataFrame
    df = pd.DataFrame(data)
    print(df)
+
+   end  = datetime.now()
+   duration = end -  start
+   print("Runtime duration:" , duration  )
+
 
 
 Output :
@@ -55,6 +61,9 @@ Output :
 
    Runtime duration : 0:00:01.96
 
+
+
+
 Visualizing Retrieved Data
 ---------------------------
 
@@ -75,18 +84,17 @@ by considering the example above, we add the part which plots the retrieved geop
    import cartopy.feature as cfeature
    import matplotlib.pyplot as plt
    from   mpl_toolkits.axes_grid1 import make_axes_locatable
-   from datetime import datetime 
+   from   datetime import datetime 
 
-   from  odb4py.utils  import  OdbEnv ,  OdbObject  ,  StringParser  
-   env= OdbEnv ()
-   env.InitEnv ()
-   from odb4py.core  import  odbDict , odbConnect, odbClose , odbDca
+
+   from  odb4py.utils  import  OdbObject,  StringParser  
+   from  odb4py.core   import  odbDict  ,  odbConnect, odbClose , odbDca
 
    # Start 
    start = datetime.now()
 
    # Path  
-   dbpath ="/imaginary/path/CCMA"
+   dbpath ="/path/to/CCMA"
    
    # Connect 
    iret  = odbConnect ( odbdir = dbpath )
@@ -97,7 +105,6 @@ by considering the example above, we add the part which plots the retrieved geop
    # DCA files generation 
    if not os.path.isdir ( "/".join( ( dbpath, "dca")))  :
       NCPU=4
-      os.environ["IOASSIGN "]  =dbpath+"/IOASSIGN"
       ic=odbDca ( dbpath=dbpath, db= "CCMA" , ncpu=NCPU  )
 
    # Select SYNOP t2m  
@@ -170,8 +177,3 @@ Runtime duration: 0:00:04.77
 This workflow enables rapid visual diagnostics of observation coverage
 and spatial distribution, which are essential in data assimilation and
 forecast verification studies.
-
-
-
-
-
