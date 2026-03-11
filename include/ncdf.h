@@ -82,7 +82,6 @@ static void convert_rad_to_deg(double *buffer,
 }
 
 
-
 void build_dd_path(const char *path, char *ddfile, size_t size)
 {
     char tmp[512];
@@ -100,16 +99,23 @@ void build_dd_path(const char *path, char *ddfile, size_t size)
 }
 
 
-void scan_dd_file ( const char *database  , int *ana_date , int* ana_time  ) {
+
+void   scan_dd_file ( const char *database   , 
+                             int *vers , 
+			     int *majv ,
+		             int *ana_date   , 
+			     int *ana_time   ,
+			     int *creat_date , 
+			     int *creat_time ,
+			     int *npools     , 
+			     int *ntabs  ) {
 
 char  ddfile [256] ;
-char  line[256];
-int vers , majv , minv ;
-/*int creat_date , creat_time  ;
+char  line   [256];
+int minv ;
 int modif_date , modif_time  ;
-int ana_date , ana_time  ;*/
-int npools , ntabs  ;
 
+int nfirst_line=6  ; 
 build_dd_path(    database    ,ddfile , sizeof(ddfile));
 
 FILE *fp = fopen(ddfile, "r");
@@ -117,18 +123,53 @@ if (!fp) {
     return  (void) NULL ;
 }
 int  i = 0  ;
-while (fgets(line, sizeof(line), fp)) {
+while (fgets(line, sizeof(line), fp) && i <= ( nfirst_line -1)) {
+
     switch  (i)  {
-      case 0: sscanf(line, "%d %d %d" , &vers , &majv, &minv );          break  ;
-/*/      case 1: sscanf(line, "%d %d",     &creat_date, &creat_time ); break  ;
-      case 2: sscanf(line, "%d %d",     &modif_date, &modif_time ); break  ;*/
-      case 3: sscanf(line, "%d %d",  &(*ana_date) , &(*ana_time) ); break  ;
-      case 4: sscanf(line, "%d",  &npools ); break ;
-      case 5: sscanf(line, "%d",  &ntabs ); break ;
+      case 0: sscanf(line, "%d %d %d" , &(*vers) , &(*majv) , &minv      ); break  ;
+      case 1: sscanf(line, "%d %d",    &(*creat_date) , &(*creat_time )  ); break  ;
+      case 2: sscanf(line, "%d %d",  &modif_date, &modif_time     ); break  ;
+      case 3: sscanf(line, "%d %d",  &(*ana_date  ), &(*ana_time) ); break  ;
+      case 4: sscanf(line, "%d",  &(*npools )  ); break ;
+      case 5: sscanf(line, "%d",  &(*ntabs)    ); break ;
       default:
-	 continue ;
+	 (void) 0 ;   // do nothing  
     }
     i++  ;
 }
 }
+// Format datetime to    YY-MM-DD HH:MM:SS UTC 
+void format_datetime(int date, int time, char *out){
+    int Y = date / 10000;
+    int M = (date / 100) % 100;
+    int D = date % 100;
+    int h = time / 10000;
+    int m = (time / 100) % 100;
+    int s = time % 100;
+    sprintf(out, "%04d-%02d-%02d %02d:%02d:%02d UTC", Y, M, D, h, m, s);
+}
 
+// Count number of written bytes 
+size_t nc_var_size_bytes(int ncid, int varid)
+{
+    nc_type vartype;
+    int ndims;
+    int dimids[NC_MAX_VAR_DIMS];
+
+    size_t typesize;
+    size_t dimlen;
+    size_t nelems = 1;
+
+    nc_inq_vartype(ncid, varid, &vartype);
+    nc_inq_varndims(ncid, varid, &ndims);
+    nc_inq_vardimid(ncid, varid, dimids);
+
+    nc_inq_type(ncid, vartype, NULL, &typesize);
+
+    for (int i = 0; i < ndims; i++) {
+        nc_inq_dimlen(ncid, dimids[i], &dimlen);
+        nelems *= dimlen;
+    }
+
+    return nelems * typesize;
+}
