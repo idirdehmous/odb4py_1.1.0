@@ -8,6 +8,7 @@
 #include "dict_module.h"
 #include "geo_module.h"
 #include "dbarray_module.h"
+#include "nc_module.h" 
 
 
 // Define the functions in the modules 
@@ -30,9 +31,7 @@ static PyMethodDef module_methods[] = {
     {"odbGcdist" , (PyCFunction)(void(*)(void))  odbGcdist_method , METH_VARARGS | METH_KEYWORDS,  "Compute great circle distance between numpy lat/lon pairs"},
 
     {"odbGeopoints" , (PyCFunction)(void(*)(void))  odbGeopoints_method , METH_VARARGS | METH_KEYWORDS,  "Fetch lat/lon/obsvalue according to some additional custom Where statement"},
-
-        {"odb2nc"  ,  (PyCFunction)(void(*)(void))     odb2nc_method   ,
-     METH_VARARGS | METH_KEYWORDS,   "Write data into netcdf file  "},
+    {"odb2nc"  ,  (PyCFunction)(void(*)(void))     odb2nc_method   , METH_VARARGS | METH_KEYWORDS,   "Write data into netcdf file  "},
 
     {"version"   , odbMeta_version, METH_NOARGS, "Return the odb4py version."  },
 
