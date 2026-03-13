@@ -1,6 +1,6 @@
 [project]
 name = "odb4py"
-version = "1.1.2rc0"
+version = "1.3.1rc0"
 
 description = "Python extension to access the ECMWF observation database (ODB1) format"
 readme = "README.md"
@@ -35,8 +35,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage      = "https://github.com/idirdehmous/odb4py_1.1.1"
-Source        = "https://github.com/idirdehmous/odb4py_1.1.1"
+Homepage      = "https://github.com/idirdehmous/odb4py_1.3.1"
+Source        = "https://github.com/idirdehmous/odb4py_1.3.1"
 Documentation = "https://odb4py.readthedocs.io"
 
 
