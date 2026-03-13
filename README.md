@@ -2,7 +2,7 @@
 [![Documentation Status](https://readthedocs.org/projects/odb4py/badge/?version=latest)](https://odb4py.readthedocs.io)
 ![Python](https://img.shields.io/pypi/pyversions/odb4py)
 
-# odb4py 1.3.1release
+# odb4py 1.3.1 release
 
 ## Description
 
@@ -41,6 +41,9 @@ pip install odb4py
 Python ≥ 3.9 <br>
 NumPy  ≥ 2.0 <br>
 Linux system (manylinux2014 compatible)
+
+###Optional 
+pyodc  ≥ 1.6.0 <br>
 
 ## Scientific context
 ODB (Observation DataBase) is a column-oriented database format developed at ECMWF
