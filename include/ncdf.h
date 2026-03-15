@@ -1,6 +1,8 @@
 #ifndef NCDF_H
 #define NCDF_H
 
+#include <ctype.h>
+#include <string.h>
 #include <libgen.h>
 #include "netcdf.h"
 
@@ -172,6 +174,78 @@ size_t nc_var_size_bytes(int ncid, int varid)
         nelems *= dimlen;
     }
     return nelems * typesize;
+}
+
+
+
+void normalize_spaces( char *s)
+{
+    char *src = s;
+    char *dst = s;
+    int space = 0;
+    while (*src) {
+        if (*src == ' ') {
+            if (!space) {
+                *dst++ = ' ';
+                space = 1; }
+        } else {
+            *dst++ = *src;
+            space = 0;
+        }
+        src++;
+    }
+    *dst = '\0';
+}
+
+
+
+
+char *read_sql_file(const char *filename){
+    FILE *f = fopen(filename, "r");
+    if (!f) return NULL;
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    rewind(f);
+    char *buffer = malloc(size + 1);
+    if (!buffer) {
+        fclose(f);
+        return NULL;
+    }
+    fread(buffer, 1, size, f);
+    buffer[size] = '\0';
+    fclose(f);
+    return buffer;
+}
+
+char *extract_select( char *sql)
+{
+    char *p = sql;
+    while (*p) {
+        if (strncasecmp(p, "SELECT", 6) == 0) {
+            return p;
+        }
+        p++;
+    }
+    return NULL;
+}
+
+
+
+
+void trim(char *s)
+{
+    char *start = s;
+    char *end;
+    if (!s || *s == '\0')
+        return;
+    while (*start && isspace((unsigned char)*start))
+        start++;
+    if (start != s)
+        memmove(s, start, strlen(start) + 1);
+    end = s + strlen(s);
+    while (end > s && isspace((unsigned char)*(end - 1)))
+        end--;
+    *end = '\0';
 }
 
 #endif

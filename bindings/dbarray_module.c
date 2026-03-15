@@ -43,7 +43,7 @@ static PyObject * odb_array_method(PyObject *Py_UNUSED(self), PyObject *args, Py
     static char *kwlist[] = {"database","sql_query", "fmt_float", "queryfile", "poolmask","pbar" , "verbose","header",  NULL};
 
     // Parse keyword args 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ss|izOOOO", kwlist,   // 2 requiered , 6 optional 
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sz|izOOOO", kwlist,   // 2 requiered , 6 optional 
                                      &database,
                                      &sql_query,
 //                                     &fcols    ,
@@ -58,10 +58,21 @@ static PyObject * odb_array_method(PyObject *Py_UNUSED(self), PyObject *args, Py
 
 
 
+
+
     // Conversion to boolean C variable
     lpbar    = PyObj_ToBool ( pbar  , lpbar     );
     verbose  = PyObj_ToBool ( pverb , verbose   );
     lheader  = PyObj_ToBool ( phead , lheader   );
+
+
+    // Required  
+    if (!sql_query && !queryfile) {
+       PyErr_SetString(PyExc_TypeError,
+        "--odb4py : Either 'sql_query' or 'queryfile' must be provided");
+    return NULL;
+    }
+
 
      // Convert to string
     const char *poolmask_str = NULL;
@@ -73,10 +84,8 @@ static PyObject * odb_array_method(PyObject *Py_UNUSED(self), PyObject *args, Py
      poolmask_str  = PyUnicode_AsUTF8(poolmask_obj);
     }
 
-
-    // Estimate number of rows                      
-    int total_rows = getMaxrows(database, sql_query, poolmask_str );
-    
+    // Get maximum number of rows 
+    int total_rows = getMaxrows(database, sql_query , queryfile, poolmask_str );
     // Progress bar 
     size_t prog_max = 0 ;
     prog_max = (size_t)total_rows;
@@ -91,8 +100,9 @@ static PyObject * odb_array_method(PyObject *Py_UNUSED(self), PyObject *args, Py
     if (verbose) {
         if (sql_query)
             printf("--odb4py : Executing query from string statement : %s\n", sql_query);
-        else if (queryfile)
+    }  else if (queryfile) {
             printf("--odb4py : Executing query from file : %s\n", queryfile);
+            printf("%s\n", "--odb4py : WARNING --> Executing the queries from SQL file is DEPRECATED. Not completly stable");
     }
 
 
@@ -100,15 +110,20 @@ static PyObject * odb_array_method(PyObject *Py_UNUSED(self), PyObject *args, Py
         printf("Fetch data from pool(s) #: %s\n", poolmask_str );
     }
 
-    // Open ODB                                         
-    int maxcols = 0;
-    void *h = odbdump_open(database,
-                           sql_query,
-                           NULL,
-                           poolmask_str,
-                           NULL,
-                           &maxcols);
+    char  *varvalue = NULL;
+   // int    maxlines = -1;
+    void  *h        = NULL;
+    int    maxcols  = 0 ;
 
+
+    //  OPEN ODB
+    h = odbdump_open(database, sql_query, queryfile, poolmask_str , varvalue, &maxcols);
+
+    if (!h || maxcols <= 0) {
+        PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to open ODB or invalid number of columns");
+        return NULL  ; }
+
+    if (verbose)   printf("--odb4py : Number of requested columns : %d\n", maxcols);
 
     if (!h || maxcols <= 0) {
         PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to open ODB");

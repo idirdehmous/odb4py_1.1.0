@@ -19,7 +19,7 @@
 #define ODB_STRLEN 8  // 8 chars + '\0'
 
 // Declare excption  proto 
-static PyObject *PyOdbEmptyResultError = NULL;
+//static PyObject *PyOdbEmptyResultError = NULL;
 
 
 // Function  : odb_dict_method
@@ -28,11 +28,10 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
                                  PyObject *kwargs) {
 
     // Arguments keywords
-    char *database  = NULL;
-    char *sql_query = NULL;
+    const char *database  = NULL;
+    const char *sql_query = NULL;
+    const char *queryfile = NULL;
     int   fcols     = 0;
-    char *queryfile = NULL;
-    //char *poolmask  = NULL;
     int   fmt_float = 15  ;
 
     // Objects 
@@ -48,12 +47,18 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
     Bool verbose = false;
 
     // Keyword list 
-    static char *kwlist[] = {  "database" , "sql_query", "nfunc","fmt_float",
-                               "queryfile", "poolmask" , "pbar" , "verbose" ,  NULL
+    static char *kwlist[] = {  "database" , 
+	                       "sql_query", 
+			       "nfunc"    ,
+			       "fmt_float",
+                               "queryfile", 
+			       "poolmask" , 
+			       "pbar"     , 
+			       "verbose"  ,  NULL
                              };
 
     // Parse keyword args 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ssi|izOOO", kwlist,   // 3 requiered , 5 optional 
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "szi|izOOO", kwlist,   // 3 requiered , 5 optional 
                                      &database,
                                      &sql_query,
                                      &fcols    ,
@@ -65,11 +70,19 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
 	 return NULL  ;
     }
 
+    // Required  
+    if (!sql_query && !queryfile) {
+       PyErr_SetString(PyExc_TypeError,
+        "--odb4py : Either 'sql_query' or 'queryfile' must be provided");
+    return NULL;
+    }
+
+
     // Convert to string  
     const char *poolmask_str = NULL;
     if (poolmask_obj != Py_None) {
         if (!PyUnicode_Check(poolmask_obj)) {
-         PyErr_SetString(PyExc_TypeError, "poolmask must be a string.  ex: '1 2 3 N' or '1:N' N=Number of pools'  \n") ;  
+         PyErr_SetString(PyExc_TypeError, "--odb4py : poolmask must be a string.  ex: '1 2 3 N' or '1:N' N=Number of pools'  \n") ;  
          return NULL;
          }
      poolmask_str  = PyUnicode_AsUTF8(poolmask_obj);
@@ -78,10 +91,6 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
     // Conversion to boolean C variable
     lpbar   = PyObj_ToBool ( pbar , lpbar      ) ; 
     verbose = PyObj_ToBool ( pverb , verbose   ) ; 
-
-
-
-
 
     if (verbose && poolmask_str ) {
         printf("Fetch data from pool(s) #: %s\n", poolmask_str );
@@ -100,22 +109,12 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
 
 
     // Get maximum number of rows 
-    int total_rows = getMaxrows(database, sql_query , poolmask_str);
+    int total_rows = getMaxrows(database, sql_query , queryfile , poolmask_str );
 
     // Check number of rows --> check the query answer 
     if ( total_rows ==0 ) {
       PyErr_SetString(PyExc_RuntimeError, "--odb4py : The SQL request returned zero rows.");  
       return NULL ;  }
-    if (total_rows == 0)
-    {
-        // Specific Exception to  catche in python 
-        PyErr_Format(PyOdbEmptyResultError,
-                     "odb4py : SQL query returned zero rows "
-                     "(database=%s, query=\"%s\")",
-                     database ? database : "(null)",
-                     sql_query ? sql_query : "(null)");
-        return NULL;
-    }
 
     if (total_rows <= 0) total_rows = 4096;   // Fallback  
 
@@ -124,9 +123,10 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
     if (maxlines == 0) return PyLong_FromLong(rc);
     if (verbose) {
         if (sql_query)
-            printf("Executing query from string: %s\n", sql_query);
-        else if (queryfile)
-            printf("Executing query from file   : %s\n", queryfile);
+            printf("--odb4py : Executing query from string: %s\n", sql_query);
+    }   else if (queryfile) {
+            printf("--odb4py : Executing query from file   : %s\n", queryfile);
+	    printf("%s\n", "--odb4py : WARNING --> Executing the queries from SQL file is DEPRECATED. Not completly stable");
     }
     //  OPEN ODB
     h = odbdump_open(database, sql_query, queryfile, poolmask_str , varvalue, &maxcols);
@@ -137,13 +137,14 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
 
     // Number of columns taking into account the number of functions in the query  (col pure - n columns function)
     int ncols = maxcols - fcols;
+    if (verbose)   printf("--odb4py : Number of requested columns : %d\n", ncols);
+
     // Allocation 
     double *buffer    = (double *)malloc(sizeof(double) * (size_t)total_rows * (size_t)ncols);
     char  **strbufs   = (char**)calloc((size_t)ncols, sizeof(char*));
     // If allocation failed  close !
     if (!buffer) { odbdump_close(h);  PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to allocate memory buffer for numeric values ");  return NULL ;  }
     if (!strbufs){ odbdump_close(h);  PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to allocate memory buffer for string  values ");  return NULL ;  }
-    if (verbose)   printf("Number of requested columns : %d\n", ncols);
    // Internal ODB vars 
     int new_dataset = 0;
     colinfo_t *ci   = NULL;
@@ -156,7 +157,6 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
     ll_t nrtot = 0;
     int nd     = 0;
     double float_val= 0 ; 
-
    // List to hold the column names  and values 
    PyObject **col_lists        = (PyObject **)malloc(ncols * sizeof(PyObject *));
    if (!col_lists) { 
@@ -171,12 +171,10 @@ static PyObject *odb_dict_method(PyObject *Py_UNUSED(self),
        return NULL  ; 
     }
 
-
    // Init buffer strings 
    for (int i = 0; i < ncols; ++i) {
     strbufs[i] = (char*)calloc((size_t)total_rows, (size_t)ODB_STRLEN +1);
     }
-
 
     // Init columns lists 
     for (int i = 0; i < ncols; ++i) {

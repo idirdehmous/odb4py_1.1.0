@@ -12,9 +12,6 @@
 #include <Python.h>
 #include <stdio.h>
 
-// Version 
-#define ODB4PY_VERSION "1.1.3"
-
 // return version  
 static PyObject* odb_meta_version(PyObject *Py_UNUSED(self) ,  PyObject *Py_UNUSED(ignored)) {
     return Py_BuildValue("s", ODB4PY_VERSION);

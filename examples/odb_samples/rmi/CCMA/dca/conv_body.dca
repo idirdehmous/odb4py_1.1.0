@@ -1,0 +1,25 @@
+#DCA2: col# colname dtname dtnum file pool# offset length pmethod pmethod_actual nrows nmdis avg min max compression_ratio cardinality is_little
+0 ppcode@conv_body pk1int 279 1/conv_body 1 36 56 1 1 24 0 0 1 -1 1.7143 0 1
+0 ppcode@conv_body pk1int 279 2/conv_body 2 36 56 1 1 29 0 0 1 -1 2.0714 0 1
+0 ppcode@conv_body pk1int 279 3/conv_body 3 36 56 1 1 24 0 0 1 -1 1.7143 0 1
+0 ppcode@conv_body pk1int 279 4/conv_body 4 36 56 1 1 28 0 0 1 -1 2.0000 0 1
+0 ppcode@conv_body pk1int 279 5/conv_body 5 36 56 1 1 28 0 0 1 -1 2.0000 0 1
+0 ppcode@conv_body pk1int 279 6/conv_body 6 36 56 1 1 24 0 0 1 -1 1.7143 0 1
+0 ppcode@conv_body pk1int 279 7/conv_body 7 36 56 1 1 28 0 0 1 -1 2.0000 0 1
+0 ppcode@conv_body pk1int 279 8/conv_body 8 36 56 1 1 28 0 0 1 -1 2.0000 0 1
+1 level@conv_body Bitfield 1046 1/conv_body 1 100 56 1 1 24 0 0 1 -1 1.7143 0 1
+1 level@conv_body Bitfield 1046 2/conv_body 2 100 56 1 1 29 0 0 1 -1 2.0714 0 1
+1 level@conv_body Bitfield 1046 3/conv_body 3 100 56 1 1 24 0 0 1 -1 1.7143 0 1
+1 level@conv_body Bitfield 1046 4/conv_body 4 100 56 1 1 28 0 0 1 -1 2.0000 0 1
+1 level@conv_body Bitfield 1046 5/conv_body 5 100 56 1 1 28 0 0 1 -1 2.0000 0 1
+1 level@conv_body Bitfield 1046 6/conv_body 6 100 56 1 1 24 0 0 1 -1 1.7143 0 1
+1 level@conv_body Bitfield 1046 7/conv_body 7 100 56 1 1 28 0 0 1 -1 2.0000 0 1
+1 level@conv_body Bitfield 1046 8/conv_body 8 100 56 1 1 28 0 0 1 -1 2.0000 0 1
+2 datum_qcflag@conv_body pk1int 279 1/conv_body 1 164 56 1 1 24 0 0 1 -1 1.7143 0 1
+2 datum_qcflag@conv_body pk1int 279 2/conv_body 2 164 56 1 1 29 0 0 1 -1 2.0714 0 1
+2 datum_qcflag@conv_body pk1int 279 3/conv_body 3 164 56 1 1 24 0 0 1 -1 1.7143 0 1
+2 datum_qcflag@conv_body pk1int 279 4/conv_body 4 164 56 1 1 28 0 0 1 -1 2.0000 0 1
+2 datum_qcflag@conv_body pk1int 279 5/conv_body 5 164 56 1 1 28 0 0 1 -1 2.0000 0 1
+2 datum_qcflag@conv_body pk1int 279 6/conv_body 6 164 56 1 1 24 0 0 1 -1 1.7143 0 1
+2 datum_qcflag@conv_body pk1int 279 7/conv_body 7 164 56 1 1 28 0 0 1 -1 2.0000 0 1
+2 datum_qcflag@conv_body pk1int 279 8/conv_body 8 164 56 1 1 28 0 0 1 -1 2.0000 0 1

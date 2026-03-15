@@ -123,13 +123,13 @@ static PyObject* odb_gcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
 					&lon2_obj,
 					&lat2_obj)){ 
         
-	PyErr_SetString(PyExc_RuntimeError, "--pyodb : Failed to parse odbGcdistance arguments ");
+	PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to parse odb_gcdist arguments ");
         return NULL;  
     }
 
    
    if ( !lon1_obj || !lat1_obj || !lon2_obj  || !lat2_obj  ) {
-      PyErr_SetString(PyExc_RuntimeError, "--pyodb : 4 Arguments are required");
+      PyErr_SetString(PyExc_RuntimeError, "--odb4py : 4 Arguments are required  (lon1, lat1 ,lon2, lat2)");
       return NULL;    
    }
 
@@ -138,14 +138,14 @@ static PyObject* odb_gcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     // Parse args and DECREF if it fails 
     lon1 = (PyArrayObject*)PyArray_FROM_OTF( lon1_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     if (!lon1) {  
-	PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lon1");    
+	PyErr_SetString(PyExc_RuntimeError, "--odb4py: Failed to parse lon1");    
 	return NULL;
     }
 
     lat1 = (PyArrayObject*)PyArray_FROM_OTF(lat1_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     if (!lat1) {
        Py_DECREF(lon1);
-       PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lat1");
+       PyErr_SetString(PyExc_RuntimeError, "--odb4py: Failed to parse lat1");
        return NULL;
        }
 
@@ -153,7 +153,7 @@ static PyObject* odb_gcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     if (!lon2) {
        Py_DECREF(lon1);
        Py_DECREF(lat1);
-       PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lon2");
+       PyErr_SetString(PyExc_RuntimeError, "--odb4py: Failed to parse lon2");
        return NULL;
       }
 
@@ -163,7 +163,7 @@ static PyObject* odb_gcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     Py_DECREF(lon1);
     Py_DECREF(lat1);
     Py_DECREF(lon2);
-    PyErr_SetString(PyExc_RuntimeError, "--pyodb: Failed to parse lat2");
+    PyErr_SetString(PyExc_RuntimeError, "--odb4py: Failed to parse lat2");
     return NULL;
     }
 
@@ -180,7 +180,7 @@ static PyObject* odb_gcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
     Py_DECREF(lon1);
     Py_DECREF(lat2);
     Py_DECREF(lon2);
-    PyErr_SetString(PyExc_RuntimeError, "--pyodb : Unable to allocate result for the contigous matrix.");
+    PyErr_SetString(PyExc_RuntimeError, "--odb4py : Unable to allocate result for the contigous matrix.");
     return NULL;
     }
     
@@ -246,7 +246,7 @@ static PyObject *odb_geopoints_method(PyObject *Py_UNUSED(self) , PyObject *args
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwargs,
-            "s|ssOOiOO",
+            "s|zsOOiOO",
             kwlist,
             &database,
             &condition,

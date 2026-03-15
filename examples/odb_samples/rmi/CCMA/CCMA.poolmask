@@ -1,0 +1,48 @@
+ === Summary of observations and global poolmask for db=CCMA ===
+        TSLOT      OBSTYPE     CODETYPE       SENSOR     BUFRTYPE      SUBTYPE       POOLNO      HDR-cnt     BODY-cnt       MMXBDY
+            1            1           11            0            1            0            2            1            2            2
+            1            1           11            0            1            0            4            3            6            2
+            1            1           11            0            1            0            5            1            2            2
+            1            1           11            0            1            0            6            1            2            2
+            1            1           11            0            1            0            8            2            4            2
+            1            1           14            0            1            0            1            1            1            1
+            1            1           14            0            1            0            2            4            8            2
+            1            1           14            0            1            0            3            4            8            2
+            1            1           14            0            1            0            4            4            8            2
+            1            1           14            0            1            0            5            2            4            2
+            1            1           14            0            1            0            6            3            6            2
+            1            1           14            0            1            0            7            5           10            2
+            1            1           14            0            1            0            8            1            2            2
+            1            1          110            0          999          110            1           13           13            1
+            1            1          110            0          999          110            2            7            7            1
+            1            1          110            0          999          110            3            7            7            1
+            1            1          110            0          999          110            4            2            2            1
+            1            1          110            0          999          110            5           10           10            1
+            1            1          110            0          999          110            6            7            7            1
+            1            1          110            0          999          110            7            6            6            1
+            1            1          110            0          999          110            8           10           10            1
+            1            2          146            0          999            0            1            4           10            3
+            1            2          146            0          999            0            2            4           12            3
+            1            2          146            0          999            0            3            3            9            3
+            1            2          146            0          999            0            4            4           12            3
+            1            2          146            0          999            0            5            4           12            3
+            1            2          146            0          999            0            6            3            9            3
+            1            2          146            0          999            0            7            4           12            3
+            1            2          146            0          999            0            8            4           12            3
+            1           13            2            0            0            0            1           70          700           10
+            1           13            2            0            0            0            2           73          714           11
+            1           13            2            0            0            0            3           75          707           14
+            1           13            2            0            0            0            4           82          701           10
+            1           13            2            0            0            0            5           91          711           10
+            1           13            2            0            0            0            6           90          705           13
+            1           13            2            0            0            0            7           86          703           11
+            1           13            2            0            0            0            8           76          716           10
+ > Min & max pool number referred  :         1         8
+ > Max. no. of pools in allocated  :         8
+ > Minimum and maximum time slot   :         1         1
+ > Minimum and maximum hdr-count   :         1        91
+ > Minimum and maximum body-count  :         1       716
+ > Grand total no. of  hdr-entries :       767
+ > Grand total no. of body-entries :      5870
+ > Grand total maximum body-length :        14
+ === End of summary of observations and global poolmask ===

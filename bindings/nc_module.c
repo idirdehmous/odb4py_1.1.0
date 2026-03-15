@@ -22,10 +22,11 @@
 
 
 // Get the returned rows and encode into NetCDF 
-static int rows4nc(char *database,
-                   char *sql_query,
-                   int   fcols,
-                   char *poolmask,
+static int rows4nc(const char *database,
+                   const char *sql_query,
+//                   int   fcols,
+                   const char *poolmask,
+		   const char *queryfile,
                    double **buffer,   // no copy  
                    char ***strbufs,   // no copy  
                    int *nrows,
@@ -33,7 +34,8 @@ static int rows4nc(char *database,
                    nc_column_t **cols,
                    colinfo_t   **ci , 
 		   Bool lpbar , 
-	           int fmt_float 	)
+	           int fmt_float,
+	           Bool verbose 	)
 {
 //    int fmt_float = 15;
     int maxcols   = 0;
@@ -46,18 +48,29 @@ static int rows4nc(char *database,
     size_t ip       = 0 ;
     size_t prog_max = 0 ;
 
-    int total_rows = getMaxrows(database, sql_query, poolmask);
+    if (verbose) {
+        if (sql_query)
+            printf("Executing query from string: %s\n", sql_query);
+    }        else if (queryfile) {
+            printf("Executing query from file   : %s\n", queryfile);
+            printf("%s\n", "--odb4py : WARNING --> Executing the queries from SQL file is DEPRECATED. Not completly stable");
+    }
+
+
+    int total_rows = getMaxrows(database, sql_query, queryfile,poolmask);
 
     if (total_rows <= 0) {
         printf("--odb4py : ODB query returned zero rows\n");
         return -1;
     }
 
-   
+
     if (total_rows <= 0) total_rows = 4096;   // Fallback
     prog_max = (size_t)total_rows;
 
-    h = odbdump_open(database, sql_query, NULL, NULL, NULL, &maxcols);
+    // Open ODB  
+    h = odbdump_open(database, sql_query, queryfile, poolmask ,NULL , &maxcols);
+    //h = odbdump_open(database, sql_query, NULL, NULL, NULL, &maxcols);
     if (!h || maxcols <= 0) {  printf("--odb4py : Failed to open ODB\n");
         return -1;
     }
@@ -183,7 +196,8 @@ mem_error:
 // Write into  NetCDF file                                    
 static int writeNetcdf(const char *database   ,
 		       const char *outfile    ,
-		       char       *sql_query  ,  
+		       char *sql_query  ,  
+		       char *queryfile  , 
                        double     *buffer     ,
 		       char       *strbufs , 
                        int         nrows   ,
@@ -257,43 +271,51 @@ if (check != NC_NOERR) { ERR(check);    return -1;  }
 
 
 // The title & global attrib 
-const char *conv        = "CF-1.10"
+const char *conv        = "CF-1.10" ;
 const char *title       = "ODB data in NetCDF format";
-const char *history     = "created by odb4py python package";
+const char *history     = "Created by: odb4py python package";
 const char *institution = "Royal Meteorological Institute of Belgium (RMI)";
 const char *feature     = "point" ; 
 const char *data_source = "ECMWF ODB";
-const char *encoding    = "ODB (row-major)" ; 
 
+// Get nc version  
 const char *nc_version     = nc_inq_libvers();
 
 // NC conventions
 check  =  nc_put_att_text(ncid, NC_GLOBAL,"Conventions", strlen(conv), conv);
 if (check != NC_NOERR) { ERR(check);    return -1;  }
 
-check  =nc_put_att_text(ncid, NC_GLOBAL, "NetCDF_library_version" ,strlen(nc_version) , nc_version);
+check  =nc_put_att_text(ncid, NC_GLOBAL, "NetCDF_library_version" ,strlen(nc_version),nc_version);
    if (check != NC_NOERR) { ERR(check);    return -1;  }
 check  =nc_put_att_text(ncid, NC_GLOBAL, "Title"      ,strlen(title) , title);
    if (check != NC_NOERR) { ERR(check);    return -1;  }
 check  =nc_put_att_text(ncid, NC_GLOBAL, "History"    ,strlen(history) , history);
    if (check != NC_NOERR) { ERR(check);    return -1;  } 
+check  =nc_put_att_text(ncid, NC_GLOBAL, "odb4py_version"    ,strlen(ODB4PY_VERSION) , ODB4PY_VERSION);
+   if (check != NC_NOERR) { ERR(check);    return -1;  }
+
 check  =nc_put_att_text(ncid, NC_GLOBAL, "Institution",strlen(institution) , institution);
    if (check != NC_NOERR) { ERR(check);    return -1;  } 
 check  =nc_put_att_text(ncid, NC_GLOBAL, "Native_fomrat" ,strlen(data_source) , data_source );
    if (check != NC_NOERR) { ERR(check);    return -1;  }
-//check  =nc_put_att_text(ncid, NC_GLOBAL, "Encoding"   ,strlen(encoding)    , encoding);
-//   if (check != NC_NOERR) { ERR(check);    return -1;  }
+
+if (queryfile) {
+check  =nc_put_att_text(ncid, NC_GLOBAL, "Used_SQL_filename"  ,strlen(queryfile)   , queryfile);
+   if (check != NC_NOERR) { ERR(check);    return -1;  }
+} 
+
 check  =nc_put_att_text(ncid, NC_GLOBAL, "sql_query"  ,strlen(sql_query)   , sql_query);
    if (check != NC_NOERR) { ERR(check);    return -1;  }
+
 check  =nc_put_att_text(ncid, NC_GLOBAL, "featureType",strlen(feature )    , feature );
    if (check != NC_NOERR) { ERR(check);    return -1;  }
 
 // Date and time  
 check  =nc_put_att_text(ncid, NC_GLOBAL, "NetCDF_datetime_creation",strlen(datetime) , datetime );
    if (check != NC_NOERR) { ERR(check);    return -1;  }
-check  =nc_put_att_text(ncid, NC_GLOBAL, "analysis_datetime"       , strlen(ana_str)  , ana_str  );
+check  =nc_put_att_text(ncid, NC_GLOBAL, "ODB_analysis_datetime"       , strlen(ana_str)  , ana_str  );
    if (check != NC_NOERR) { ERR(check);    return -1;  }
-check  =nc_put_att_text(ncid, NC_GLOBAL, "creation_datetime"       , strlen(creat_str), creat_str);
+check  =nc_put_att_text(ncid, NC_GLOBAL, "ODB_creation_datetime"       , strlen(creat_str), creat_str);
    if (check != NC_NOERR) { ERR(check);    return -1;  }
 
 // The current odb attributes 
@@ -429,7 +451,7 @@ check=nc_close(ncid);
 
 //  if is here without issue so ...
    if (verbose ) {
-   printf("ODB data have been successfully written to NetCDF file : %s\n", outfile)  ; 
+   printf("ODB data have been successfully written to : %s\n", outfile)  ; 
    printf("Total written data size = %zu bytes\n", total); 
    }
     return 0;
@@ -441,19 +463,26 @@ check=nc_close(ncid);
 
 // Main function wrapper to perform conversion ODB--> NetCDF
 static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObject *kwargs){
-    char *database  = NULL;
-    char *sql_query = NULL;
-    char *ncfile    = NULL;
-    int   fcols     = 0;
+    const char *database  = NULL;
+     char *sql_query = NULL;
+     char *queryfile = NULL; 
+    const char *ncfile    = NULL;
+
+//    int   fcols     = 0;
     int  fmt_float  =15  ;    //default  
     Bool ldegree = true;
     Bool lpbar   = false;
     Bool verbose = false;
+
+    PyObject *poolmask_obj =Py_None ;   // given as a list  (object )
+
     static char *kwlist[] = {
         "database" ,
         "sql_query",
-        "nfunc"    ,
+//        "nfunc"    ,
         "ncfile"   ,
+	"poolmask" ,
+	"queryfile",
         "lalon_deg",
 	"fmt_float",
         "pbar"     ,
@@ -464,12 +493,14 @@ static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObje
     PyObject *pbar  = Py_None;
     PyObject *pverb = Py_None;
     if (!PyArg_ParseTupleAndKeywords(args, kwargs,
-                                     "ssis|OiOO",
+                                     "szs|OzOiOO",
                                      kwlist,
                                      &database,
                                      &sql_query,
-                                     &fcols,
+                                    // &fcols,
                                      &ncfile,
+				     &poolmask_obj,
+				     &queryfile ,
                                      &degree_obj,
 				     &fmt_float , 
                                      &pbar,
@@ -477,8 +508,29 @@ static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObje
         return PyLong_FromLong(-1);
 
     ldegree = PyObj_ToBool(degree_obj, ldegree);
-    lpbar   = PyObj_ToBool(pbar, lpbar);
-    verbose = PyObj_ToBool(pverb, verbose);
+    lpbar   = PyObj_ToBool(pbar      , lpbar);
+    verbose = PyObj_ToBool(pverb     , verbose);
+
+
+// One is required 
+    if (!sql_query && !queryfile) {
+       PyErr_SetString(PyExc_TypeError,
+        "--odb4py : Either 'sql_query' or 'queryfile' must be provided");
+     return PyLong_FromLong(-1)  ;
+    }
+
+
+    // Convert from object to C string 
+    const  char *poolmask_str =NULL ; 
+    if (poolmask_obj != Py_None) {
+        if (!PyUnicode_Check(poolmask_obj)) {
+         PyErr_SetString(PyExc_TypeError, "--odb4py : poolmask must be a string.  ex: '1 2 3 N' or '1:N' N=Number of pools'  \n") ;
+          return PyLong_FromLong(-1)  ;
+         }
+     poolmask_str  = PyUnicode_AsUTF8(poolmask_obj);
+    }
+
+
     double *buffer  = NULL;
     char   **strbufs = NULL;
     int nrows = 0;
@@ -487,13 +539,19 @@ static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObje
     colinfo_t   *ci   = NULL;
 
     // Get rows 
-    if (rows4nc(database, sql_query, fcols, NULL,
-                &buffer, &strbufs,
-                &nrows, &ncols,
-                &cols, &ci,
-                lpbar, fmt_float) != 0)
+    if (rows4nc(database    , 
+                sql_query, 
+                //fcols, 
+	       	poolmask_str,
+		queryfile,
+                &buffer , &strbufs ,
+                &nrows  , &ncols   ,
+                &cols   , &ci      ,
+                lpbar, fmt_float , verbose ) != 0)
+
+
     {
-        PyErr_SetString(PyExc_RuntimeError, "--odb4py : failed to get rows from ODB for NetCDF encoding");
+        PyErr_SetString(PyExc_RuntimeError, "--odb4py : Failed to get rows from ODB for NetCDF encoding");
         return PyLong_FromLong(-1);
     }
 
@@ -503,7 +561,7 @@ static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObje
     //   ldegree is infered from  the sql query  
     if (!ldegree) {
         if (verbose)
-            printf("Coordinates converted radians to degrees\n\n");
+            printf("--odb4py : Coordinates converted radians to degrees\n\n");
         convert_rad_to_deg(buffer, nrows, ncols, cols);
     }
 
@@ -540,10 +598,48 @@ static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObje
         }
     }
 
-     printf("Writing ODB data into NetCDF file ...\n" )  ; 
 
-    int  status=writeNetcdf( database ,  ncfile,sql_query,buffer, buffer_str , nrows, ncols, cols, verbose  ) ;
-    if (status != 0 ) {
+// Start writing data 
+printf("Writing ODB data into NetCDF file ...\n" )  ;
+
+// Before writing  !!
+char *sql_text = NULL;
+// Check if a file is used or just an SQL statement
+if (queryfile) {
+    sql_text = read_sql_file(queryfile);
+    char *select_query = extract_select(sql_text);
+    trim(select_query);
+    sql_text = select_query;
+    
+} else {	
+    // The query is a string statement -->  Clean blank spaces in the query
+    normalize_spaces(sql_query);
+    trim(sql_query);
+    sql_text = sql_query;
+}
+
+// Remove the path to the query file   .. User account will be shown !
+char *sql_file =NULL ; 
+if (queryfile) {	
+char *sql_file = queryfile;
+char *base     = strrchr(queryfile, '/');
+   if (base)
+        sql_file = base + 1;
+}  
+
+// Write !
+int status = writeNetcdf(          database, 
+		                   ncfile, 
+		                   sql_text,
+				   sql_file,
+                                   buffer, 
+				   buffer_str,
+                                   nrows, 
+				   ncols, 
+				   cols, 
+				   verbose);
+
+if (status != 0 ) {
         PyErr_SetString(PyExc_RuntimeError,
             "--odb4py : Failed to write data into the NetCDF file" );
        return  PyLong_FromLong( -1 );
@@ -559,6 +655,5 @@ static PyObject *odb2nc_method(PyObject *Py_UNUSED(self), PyObject *args, PyObje
        odbdump_destroy_colinfo(ci, 0); 
       }
     
-
   return PyLong_FromLong(0)  ; 
 }

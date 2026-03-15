@@ -93,7 +93,7 @@ If the verbose is set to *True* the following output is printed on the screen:
 
    If the table names are not explicitly provided, the underlying
    ``dcagen`` utility iterates over all possible ODB tables found in the metadata file *ECMA.dd* or *CCMA.dd*. 
-   By default in a standard ODB configuration, this corresponds to **390 tables**.
+   By default in a standard ODB configuration, this corresponds to around **390 tables**.
 
    In the example above, only **17 tables** are actually present in the
    database. Therefore, not specifying the table list would cause

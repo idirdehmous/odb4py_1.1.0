@@ -4,10 +4,13 @@ ODB data conversion
 In addition to querying data directly from an ODB database, *odb4py* provides utilities to convert ODB datasets into other data formats.
 These utilities are available in the ``odb4py.convert`` module.
 
+Convert ODB to NetCDF format
+----------------------------
 At present, a single conversion function is available: ``odb2nc``, which converts an ODB database into a NetCDF file.
 
 Unlike the query functions, ``odb2nc`` operates independently of an existing database connection.
 The function internally opens the ODB database, reads the requested data, writes the NetCDF output file, and closes the database automatically.
+The following example 
 
 .. code-block:: python
 

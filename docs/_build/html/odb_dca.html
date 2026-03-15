@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="SQL Query and data retrieval" href="data_retrieval.html" />
+    <link rel="next" title="SQL query and data retrieval" href="data_retrieval.html" />
     <link rel="prev" title="Open and close an ODB" href="odb_io.html" /> 
 </head>
 
@@ -42,16 +42,17 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inspect_odb.html">Inspect the ODB metadata</a></li>
 <li class="toctree-l1"><a class="reference internal" href="odb_io.html">Open and close an ODB</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Creating Column Direct Access files (DCA)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_retrieval.html">SQL Query and data retrieval</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odb_in_python_ecosystem.html">Integration with python ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_retrieval.html">SQL query and data retrieval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_in_python_ecosystem.html">Integration with the python ecosystem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="open_odb_loop.html">Using odb4py inside loops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_conversion.html">ODB data conversion</a></li>
 </ul>
 
         </div>
@@ -163,7 +164,7 @@ update_4.dca
 <p class="admonition-title">Note</p>
 <p>If the table names are not explicitly provided, the underlying
 <code class="docutils literal notranslate"><span class="pre">dcagen</span></code> utility iterates over all possible ODB tables found in the metadata file <em>ECMA.dd</em> or <em>CCMA.dd</em>.
-By default in a standard ODB configuration, this corresponds to <strong>390 tables</strong>.</p>
+By default in a standard ODB configuration, this corresponds to around <strong>390 tables</strong>.</p>
 <p>In the example above, only <strong>17 tables</strong> are actually present in the
 database. Therefore, not specifying the table list would cause
 <code class="docutils literal notranslate"><span class="pre">dcagen</span></code> to loop over all possible ODB tables, which may
@@ -176,7 +177,7 @@ significantly increase the DCA generation time.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="odb_io.html" class="btn btn-neutral float-left" title="Open and close an ODB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="data_retrieval.html" class="btn btn-neutral float-right" title="SQL Query and data retrieval" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="data_retrieval.html" class="btn btn-neutral float-right" title="SQL query and data retrieval" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

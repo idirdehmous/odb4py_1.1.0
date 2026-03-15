@@ -1,6 +1,13 @@
 #ifndef PYSPAM_H
 #define PYSPAM_H
 
+
+// Version
+#define ODB4PY_VERSION "1.3.1"
+
+
+
+
 #define PY_SSIZE_T_CLEAN
 #define ODB_STRLEN 8  // 8 chars + '\0' 
 #include <numpy/arrayobject.h>
