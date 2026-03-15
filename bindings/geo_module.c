@@ -1,3 +1,14 @@
+
+/* The method sp_dists and sp_gcdists are the ones implemented in the R package 'sp'
+ * With a slight modifications 
+ *  Copyright by Roger Bivand (C) 2005-2009  
+ *
+ *
+ * Modified to be used in the method odb_gcdist  
+ * --> Computation of the great circle distances 
+ * odb4py 
+ * Idir Dehmous Copyright (C) 2026 Royal Meteorological Institute of Belgium (RMI)
+   Licensed under the Apache License, Version 2.0*/
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <numpy/arrayobject.h>
@@ -205,7 +216,7 @@ static PyObject* odb_gcdist_method( PyObject* Py_UNUSED(self) , PyObject* args)
 static PyObject *odb_geopoints_method(PyObject *Py_UNUSED(self) , PyObject *args, PyObject *kwargs)
 {
     char *database  = NULL;
-    char *sql_cond  = NULL;
+    char *condition  = NULL;
     char *unit      = "degrees";
     int fmt_float = 15;
 
@@ -223,7 +234,7 @@ static PyObject *odb_geopoints_method(PyObject *Py_UNUSED(self) , PyObject *args
 
     static char *kwlist[] = {
         "database",
-        "sql_cond",
+        "condition",
         "unit",
         "extent",
 	"poolmask",
@@ -238,7 +249,7 @@ static PyObject *odb_geopoints_method(PyObject *Py_UNUSED(self) , PyObject *args
             "s|ssOOiOO",
             kwlist,
             &database,
-            &sql_cond,
+            &condition,
             &unit,
             &extent_obj,
 	    &poolmask_obj,
@@ -276,17 +287,29 @@ if (!sqlb)
     return PyErr_NoMemory();
 
 
+// Check the unit 
+if (unit) {
+    if (strcmp(unit, "degrees") != 0 && strcmp(unit, "radians") != 0) {
+        PyErr_SetString(PyExc_TypeError,
+            "--odb4py: Bad argument for 'unit'. Possible values: 'degrees' or 'radians'");
+        return NULL;
+    }
+}
+
+
+
 // The geo point first select statement 
-// If in degrees 
+// If in degrees ! 
 if (unit && strcmp(unit,"degrees")==0){
 sqlbuilder_add(sqlb,  "SELECT degrees(lat), degrees(lon),vertco_reference_1,vertco_reference_2,date,time, obsvalue FROM hdr, body WHERE 1=1");
 nfunc  = 2  ;   
 } else if (unit && strcmp(unit,"radians")==0  ) {
-sqlbuilder_add(sqlb,  "SELECT lat, lon,vertco_reference_1,vertco_reference_2,date,time, obsvalue FROM hdr, body WHERE 1=1");
+sqlbuilder_add(sqlb,  "SELECT lat, lon,vertco_reference_1,vertco_reference_2,date,time, obsvalue FROM hdr, body  WHERE 1=1");
 nfunc =0  ; 
 }
 
 // Get a subdomain  
+// By default the cordinates are in degrees 
 if (extent_obj != Py_None) {
     if (!PySequence_Check(extent_obj) || PySequence_Size(extent_obj) != 4)
     {
@@ -300,27 +323,52 @@ if (extent_obj != Py_None) {
     double lat1 = PyFloat_AsDouble(PySequence_GetItem(extent_obj,2));
     double lat2 = PyFloat_AsDouble(PySequence_GetItem(extent_obj,3));
 
+   // Add SQL boundary box   
+   sqlbuilder_addf(sqlb,
+    " AND degrees(lat) BETWEEN %.10g AND %.10g "
+    " AND degrees(lon) BETWEEN %.10g AND %.10g ",
+    lat1, lat2, lon1, lon2);
+
+
+// If in radians convert the extent values 
+// MEANS THAT THE EXTENT MUST ALWAYS BE GIVEN IN DEGREES !
+if (unit && strcmp(unit,"radians")==0  )  {     
+    double rlon1 = DEG2RAD( lon1 )  ; 
+    double rlon2 = DEG2RAD( lon2 )  ;
+    double rlat1 = DEG2RAD( lat1 )  ;
+    double rlat2 = DEG2RAD( lat2 )  ;
+    printf( "%s\n" ,"--odb4py : The lat/lon unit is set to `radians`\nThe bounding box converted.");
+    printf( "The bounding box in radians: lon1=%f, lon2=%f, lat1=%f, lat2=%f\n" , rlon1, rlon2 , rlat1, rlat2 ) ;
+
+   //printf( "%f  %f  %f  %f \n"  , lon1, lon2 , lat1, lat2) ; 
   // Add SQL boundary box   
     sqlbuilder_addf(sqlb,
     " AND lat BETWEEN %.10g AND %.10g "
     " AND lon BETWEEN %.10g AND %.10g ",
+    rlat1, rlat2, rlon1, rlon2);
+}
+
+
+
+//printf( "%f  %f  %f  %f \n"  , lon1, lon2 , lat1, lat2) ; 
+  // Add SQL boundary box   
+   sqlbuilder_addf(sqlb,
+    " AND degrees(lat) BETWEEN %.10g AND %.10g "
+    " AND degrees(lon) BETWEEN %.10g AND %.10g ",
     lat1, lat2, lon1, lon2);
 
 }
 
-// Add SQL parts 
-//if (sql_cond && strlen(sql_cond) > 0) { 
-//   sqlbuilder_addf(sqlb,  " AND  %s  ", sql_cond);
-//}
 
-// What if the  sql_cond is  empty   "  " or ""  
-if (!is_blank_string(sql_cond)) {
-    sqlbuilder_addf(sqlb, " AND (%s)", sql_cond);
+// What if the  SQL condition  is  empty   "  " or ""  
+if (!is_blank_string(condition)) {
+    sqlbuilder_addf(sqlb, " AND (%s) ", condition);
 }
 
 // Get the SQL statement string and  free 
 PyObject *sql_obj = sqlbuilder_build(sqlb);
 sqlbuilder_free(sqlb);
+
 
 if (!sql_obj)
     return NULL;
@@ -347,10 +395,11 @@ PyDict_SetItemString(key_args, "pbar",     lpbar   ? Py_True : Py_False);
 // Verbosity 
 PyDict_SetItemString(key_args, "verbose",  verbose ? Py_True : Py_False);
 
-// Quick print of the PyObject dict //PyObject_Print( key_args , stdout , 0 ) ; 
+// Quick print of the PyObject dict 
+//PyObject_Print(  sql_obj  , stdout , 0 ) ; 
 
 
-// Create empty tuple as posional arguments 
+// Create empty tuple as posional arguments   and call odb_dict method 
 PyObject *args_call = PyTuple_New(0);
 
 PyObject *rows   = odb_dict_method  ( NULL , args_call , key_args )  ;  
