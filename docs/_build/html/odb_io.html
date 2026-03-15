@@ -53,6 +53,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="odb_dca.html">Creating Column Direct Access Files (DCA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_retrieval.html">SQL Query and data retrieval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_in_python_ecosystem.html">Integration with python ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="open_odb_loop.html">Using odb4py inside loops</a></li>
 </ul>
 
         </div>
@@ -88,46 +91,59 @@ These operations must be performed in the backend before accessing the data.</p>
 to open and close an ODB database.</p>
 <section id="open-an-odb-database">
 <h2>Open an ODB database<a class="headerlink" href="#open-an-odb-database" title="Link to this heading"></a></h2>
-<p>To open a database, the <code class="docutils literal notranslate"><span class="pre">odbConnect</span></code> function from the <code class="docutils literal notranslate"><span class="pre">odb4py.core</span></code>
-module must be used. This function returns <strong>0</strong> if the connection succeeds
-or <strong>-1</strong> if it fails.</p>
-<p>The function initializes the main ODB variables such as the database path,
-the location of metadata files, and the maximum number of ODB handlers.</p>
+<p>To open an ODB database, use the odb_open function from the <code class="docutils literal notranslate"><span class="pre">odb4py.core</span></code> module.
+This function is a wrapper around the <code class="docutils literal notranslate"><span class="pre">ODBc_open</span></code> original ODB code.</p>
+<p>It opens the database and returns an <em>odb.ODBConnection</em> Python object that represents the active ODB session.
+The function initializes the main ODB parameters, including: the database path, the location of the metadata files, the maximum number of ODB handlers etc.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
 
 <span class="c1"># Import function</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">odbConnect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">odb_open</span>
 
 <span class="c1"># Path to a CCMA database</span>
 <span class="n">dbtype</span> <span class="o">=</span> <span class="s2">&quot;CCMA&quot;</span>
 <span class="n">dbpath</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="s2">&quot;/path/to/odb&quot;</span><span class="p">,</span> <span class="n">dbtype</span><span class="p">))</span>
 
 <span class="c1"># Open the database</span>
-<span class="n">iret</span> <span class="o">=</span> <span class="n">odbConnect</span><span class="p">(</span><span class="n">odbdir</span><span class="o">=</span><span class="n">dbpath</span> <span class="p">)</span>
-
-<span class="c1"># Check the return code</span>
-<span class="k">if</span> <span class="n">iret</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to open the ODB database:&quot;</span><span class="p">,</span> <span class="n">dbpath</span><span class="p">)</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">conn</span>  <span class="o">=</span> <span class="n">odb_open</span>  <span class="p">(</span><span class="n">database</span> <span class="o">=</span><span class="n">dbpath</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span> <span class="n">conn</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&lt;odb.ODBConnection<span class="w"> </span>object<span class="w"> </span>at<span class="w"> </span>0x7f7ca23eed30&gt;
 </pre></div>
 </div>
 </section>
 <section id="close-an-odb-database">
 <h2>Close an ODB database<a class="headerlink" href="#close-an-odb-database" title="Link to this heading"></a></h2>
 <p>Once the database is no longer needed, it should be closed using the
-<code class="docutils literal notranslate"><span class="pre">odbClose</span></code> function. This function releases allocated handlers,
+<code class="docutils literal notranslate"><span class="pre">odb_close</span></code> method. This function releases allocated handlers,
 poolmask arrays (if used), and reinitializes the internal ODB structures.</p>
 <p>The function takes no arguments. It automatically looks for all variables
 that were initialized during the connection phase.</p>
-<p>The function returns <strong>0</strong> if the operation succeeds and <strong>-1</strong> otherwise.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Most ODB operations are available as methods of the <em>ODBConnection</em> object returned by <code class="docutils literal notranslate"><span class="pre">odb_open</span></code>.
+This means that once a database is opened, all ODB-related functions can be accessed directly through the connection object.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="c1"># Import function</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">odbClose</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">odb_open</span>
+
+<span class="c1"># Path to a CCMA database</span>
+<span class="n">dbtype</span> <span class="o">=</span> <span class="s2">&quot;CCMA&quot;</span>
+<span class="n">dbpath</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="s2">&quot;/path/to/odb&quot;</span><span class="p">,</span> <span class="n">dbtype</span><span class="p">))</span>
+
+<span class="c1"># Open the database</span>
+<span class="n">conn</span>  <span class="o">=</span> <span class="n">odb_open</span> <span class="p">(</span><span class="n">database</span> <span class="o">=</span><span class="n">dbpath</span> <span class="p">)</span>
+
+<span class="c1"># Call the other methods and manipulate the data</span>
+<span class="o">...</span>
+<span class="o">...</span>
 
 <span class="c1"># Close the database</span>
-<span class="n">odbClose</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">odb_close</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>

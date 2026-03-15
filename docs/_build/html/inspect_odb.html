@@ -49,6 +49,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inspect the ODB metadata</a></li>
 <li class="toctree-l1"><a class="reference internal" href="odb_io.html">Open and close an ODB</a></li>
 <li class="toctree-l1"><a class="reference internal" href="odb_dca.html">Creating Column Direct Access Files (DCA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_retrieval.html">SQL Query and data retrieval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_in_python_ecosystem.html">Integration with python ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="open_odb_loop.html">Using odb4py inside loops</a></li>
 </ul>
 
         </div>
@@ -79,25 +82,27 @@
 <h1>Inspect the ODB metadata<a class="headerlink" href="#inspect-the-odb-metadata" title="Link to this heading"></a></h1>
 <p><strong>odb4py</strong> provides two main modules:</p>
 <ul class="simple">
-<li><p><strong>odb4py.core</strong>: Low-level functions interfacing Python with the ODB runtime libraries.</p></li>
-<li><p><strong>odb4py.utils</strong>: Pure Python helper utilities to initialize the ODB environment, sanitize SQL queries, and manage auxiliary tasks.</p></li>
+<li><p><strong>odb4py.core</strong>   : Low-level functions interfacing Python with the ODB runtime libraries.</p></li>
+<li><p><strong>odb4py.convert</strong>: Read the ODB and converts the data rows into other formats such as NetCDF.</p></li>
+<li><p><strong>odb4py.utils</strong>  : Pure Python helper utilities to initialize the ODB environment, sanitize SQL queries, and manage auxiliary tasks.</p></li>
 </ul>
 <p>To retrieve the general attributes of an ODB database, only the directory and metadata files are parsed.
 The attributes can be fetched individually or returned as a dictionary object.</p>
 <p>In a Python script, a database object must first be instantiated using <code class="docutils literal notranslate"><span class="pre">OdbObject</span></code> (from the <code class="docutils literal notranslate"><span class="pre">odb_ob.py</span></code> module).
 The following methods can then be used to retrieve metadata attributes:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">GetBasename</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GetSize</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GetPools</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GetAttrib</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_basename</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_size</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_pools</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_attrib</span></code></p></li>
 </ul>
 <p>Example of an RMI ODB database: <strong>ECMA.synop</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">odb4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdbObject</span>
 
+<span class="c1"># Create a &#39;db&#39; object</span>
 <span class="n">db</span> <span class="o">=</span> <span class="n">OdbObject</span><span class="p">(</span><span class="s2">&quot;/path/to/ECMA.synop&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">GetAttrib</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">get_attrib</span><span class="p">())</span>
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>name<span class="w">                           </span>:<span class="w">  </span>ECMA.synop

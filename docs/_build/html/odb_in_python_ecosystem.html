@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Integration with python ecosystem &mdash; odb4py 1.1.0 documentation</title>
+  <title>Integration with the python ecosystem &mdash; odb4py 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
@@ -18,7 +18,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using odb4py inside loops" href="open_odb_loop.html" />
+    <link rel="prev" title="SQL query and data retrieval" href="data_retrieval.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,12 +43,18 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inspect_odb.html">Inspect the ODB metadata</a></li>
 <li class="toctree-l1"><a class="reference internal" href="odb_io.html">Open and close an ODB</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odb_dca.html">Creating Column Direct Access Files (DCA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="odb_dca.html">Creating Column Direct Access files (DCA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_retrieval.html">SQL query and data retrieval</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Integration with the python ecosystem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#visualizing-retrieved-data">Visualizing Retrieved Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="open_odb_loop.html">Using odb4py inside loops</a></li>
 </ul>
 
         </div>
@@ -63,7 +71,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Integration with python ecosystem</li>
+      <li class="breadcrumb-item active">Integration with the python ecosystem</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/odb_in_python_ecosystem.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -73,8 +81,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="integration-with-python-ecosystem">
-<h1>Integration with python ecosystem<a class="headerlink" href="#integration-with-python-ecosystem" title="Link to this heading"></a></h1>
+  <section id="integration-with-the-python-ecosystem">
+<h1>Integration with the python ecosystem<a class="headerlink" href="#integration-with-the-python-ecosystem" title="Link to this heading"></a></h1>
 <p>The choice to return query results as a Python dictionary is deliberate and central to the design of <strong>odb4py</strong>.</p>
 <p>Using a dictionary provides a flexible and interoperable data structure, where column names are used as keys and the associated values correspond to the retrieved ODB rows. This approach ensures seamless compatibility with modern Python scientific libraries such as <strong>pandas</strong> and <strong>xarray</strong>.</p>
 <p>As a result, the retrieved data can be easily converted into a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> for further analysis and processing.</p>
@@ -83,25 +91,43 @@
 <li><p>Statistical analysis</p></li>
 <li><p>Data filtering and aggregation</p></li>
 <li><p>Visualization</p></li>
-<li><p>Export to common formats (ODB2, NetCDF…)</p></li>
+<li><p>Export to the ODB flat format ODB2 using <strong>pyodc</strong></p></li>
 </ul>
 </dd>
 </dl>
-<p>Example:
-Let’s consider the previous code by selecting all the observation types.</p>
+<p>Let’s consider the previous code by selecting all the observation types.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#-*- coding: utf-8 -*-</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w">   </span><span class="nn">dateime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="c1"># utils  module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.utils</span><span class="w">  </span><span class="kn">import</span> <span class="n">OdbObject</span> <span class="p">,</span> <span class="n">StringParser</span>
+
+<span class="c1"># core module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w">   </span><span class="kn">import</span> <span class="n">odb_dict</span>
+
+
+<span class="c1"># Start</span>
+<span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+<span class="c1"># The previous code</span>
+<span class="o">...</span>
 <span class="o">...</span>
 
 <span class="c1"># SQL request</span>
-<span class="n">sql_query</span> <span class="o">=</span><span class="s2">&quot;SELECT statid , obstype, varno, degrees(lat) ,  degrees(lon) , obsvalue   FROM  hdr, body&quot;</span>
+<span class="n">sql_query</span> <span class="o">=</span><span class="s2">&quot;SELECT statid ,varno, degrees(lat), degrees(lon) , obsvalue FROM  hdr, body&quot;</span>
 
 <span class="c1"># Execute SQL query</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">odbDict</span><span class="p">(</span><span class="n">dbpath</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">odb_dict</span><span class="p">(</span><span class="n">dbpath</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">,</span> <span class="n">fmt_float</span><span class="o">=</span><span class="mi">6</span> <span class="p">,</span> <span class="n">pbar</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
 
 <span class="c1"># Convert to pandas DataFrame</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">conn</span><span class="o">.</span><span class="n">odb_close</span><span class="p">()</span>
+<span class="n">end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span>  <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Runtime duration:&quot;</span> <span class="p">,</span> <span class="n">duration</span>  <span class="p">)</span>
 </pre></div>
 </div>
 <p>Output :</p>
@@ -138,30 +164,27 @@ by considering the example above, we add the part which plots the retrieved geop
 <span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.feature</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cfeature</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">from</span><span class="w">   </span><span class="nn">mpl_toolkits.axes_grid1</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_axes_locatable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w">   </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span><span class="w">  </span><span class="nn">odb4py.utils</span><span class="w">  </span><span class="kn">import</span>  <span class="n">OdbEnv</span> <span class="p">,</span>  <span class="n">OdbObject</span>  <span class="p">,</span>  <span class="n">StringParser</span>
-<span class="n">env</span><span class="o">=</span> <span class="n">OdbEnv</span> <span class="p">()</span>
-<span class="n">env</span><span class="o">.</span><span class="n">InitEnv</span> <span class="p">()</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odb4py.core</span><span class="w">  </span><span class="kn">import</span>  <span class="n">odbDict</span> <span class="p">,</span> <span class="n">odbConnect</span><span class="p">,</span> <span class="n">odbClose</span> <span class="p">,</span> <span class="n">odbDca</span>
+<span class="c1"># odb4py utils and core</span>
+<span class="kn">from</span><span class="w">  </span><span class="nn">odb4py.utils</span><span class="w">  </span><span class="kn">import</span>  <span class="n">OdbObject</span><span class="p">,</span>  <span class="n">StringParser</span>
+<span class="kn">from</span><span class="w">  </span><span class="nn">odb4py.core</span><span class="w">   </span><span class="kn">import</span>  <span class="n">odb_open</span> <span class="p">,</span> <span class="n">odb_dict</span>  <span class="n">odb_dca</span>
 
 <span class="c1"># Start</span>
 <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
 <span class="c1"># Path</span>
-<span class="n">dbpath</span> <span class="o">=</span><span class="s2">&quot;/imaginary/path/CCMA&quot;</span>
+<span class="n">dbpath</span> <span class="o">=</span><span class="s2">&quot;/path/to/CCMA&quot;</span>
 
 <span class="c1"># Connect</span>
-<span class="n">iret</span>  <span class="o">=</span> <span class="n">odbConnect</span> <span class="p">(</span> <span class="n">odbdir</span> <span class="o">=</span> <span class="n">dbpath</span> <span class="p">)</span>
-<span class="k">if</span> <span class="n">iret</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">:</span>
-   <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed  to open the odb&quot;</span>  <span class="p">,</span> <span class="n">dbpath</span> <span class="p">)</span>
-   <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">conn</span>  <span class="o">=</span> <span class="n">odb_open</span> <span class="p">(</span> <span class="n">database</span> <span class="o">=</span> <span class="n">dbpath</span> <span class="p">)</span>
 
 <span class="c1"># DCA files generation</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span> <span class="p">(</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">(</span> <span class="n">dbpath</span><span class="p">,</span> <span class="s2">&quot;dca&quot;</span><span class="p">)))</span>  <span class="p">:</span>
    <span class="n">NCPU</span><span class="o">=</span><span class="mi">4</span>
-   <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;IOASSIGN &quot;</span><span class="p">]</span>  <span class="o">=</span><span class="n">dbpath</span><span class="o">+</span><span class="s2">&quot;/IOASSIGN&quot;</span>
-   <span class="n">ic</span><span class="o">=</span><span class="n">odbDca</span> <span class="p">(</span> <span class="n">dbpath</span><span class="o">=</span><span class="n">dbpath</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span> <span class="s2">&quot;CCMA&quot;</span> <span class="p">,</span> <span class="n">ncpu</span><span class="o">=</span><span class="n">NCPU</span>  <span class="p">)</span>
+   <span class="n">status</span> <span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">odb_dca</span> <span class="p">(</span> <span class="n">database</span><span class="o">=</span><span class="n">dbpath</span><span class="p">,</span> <span class="n">dbtype</span><span class="o">=</span> <span class="s2">&quot;CCMA&quot;</span> <span class="p">,</span> <span class="n">ncpu</span><span class="o">=</span><span class="n">NCPU</span>  <span class="p">)</span>
+
 
 <span class="c1"># Select SYNOP t2m</span>
 <span class="n">sql_query</span><span class="o">=</span><span class="s2">&quot;select  statid ,</span><span class="se">\</span>
@@ -172,21 +195,25 @@ by considering the example above, we add the part which plots the retrieved geop
 <span class="s2">           FROM hdr,body WHERE </span><span class="se">\</span>
 <span class="s2">           obstype==1 and varno ==39&quot;</span>
 
-<span class="c1"># Parse the query</span>
-<span class="n">p</span>      <span class="o">=</span><span class="n">StringParser</span><span class="p">()</span>
-<span class="n">nfunc</span>  <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">ParseTokens</span> <span class="p">(</span> <span class="n">sql_query</span> <span class="p">)</span>
-<span class="n">sql</span>    <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">CleanString</span> <span class="p">(</span> <span class="n">sql_query</span>  <span class="p">)</span>
 
-<span class="c1"># Args</span>
-<span class="n">nfunctions</span><span class="o">=</span> <span class="n">nfunc</span>
-<span class="n">query_file</span><span class="o">=</span> <span class="kc">None</span>
-<span class="n">poolmask</span>  <span class="o">=</span> <span class="kc">None</span>
-<span class="n">progress</span>  <span class="o">=</span> <span class="kc">True</span>
-<span class="n">float_fmt</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">verbose</span>   <span class="o">=</span> <span class="kc">False</span>
+<span class="c1"># Parse the query</span>
+<span class="n">p</span>   <span class="o">=</span><span class="n">StringParser</span><span class="p">()</span>
+<span class="n">nf</span>  <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">get_nfunc</span>    <span class="p">(</span> <span class="n">sql_query</span> <span class="p">)</span>
+<span class="n">sql</span> <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">clean_string</span> <span class="p">(</span> <span class="n">sql_query</span> <span class="p">)</span>
+
 
 <span class="c1"># Execute the query</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>  <span class="n">odbDict</span>  <span class="p">(</span><span class="n">dbpath</span> <span class="p">,</span><span class="n">sql</span><span class="p">,</span> <span class="n">nfunctions</span> <span class="p">,</span><span class="n">float_fmt</span><span class="p">,</span><span class="n">query_file</span> <span class="p">,</span> <span class="n">poolmask</span> <span class="p">,</span> <span class="n">progress</span>    <span class="p">)</span> <span class="p">)</span>
+<span class="n">data</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">odb_dict</span> <span class="p">(</span>   <span class="n">database</span>  <span class="o">=</span><span class="n">dbpath</span>   <span class="p">,</span>
+                  <span class="n">sql_query</span> <span class="o">=</span><span class="n">sql_query</span><span class="p">,</span>
+                  <span class="n">nfunc</span>     <span class="o">=</span><span class="n">nf</span>     <span class="p">,</span>
+                  <span class="n">fmt_float</span> <span class="o">=</span> <span class="mi">5</span>     <span class="p">,</span>
+                  <span class="n">queryfile</span> <span class="o">=</span> <span class="kc">None</span>  <span class="p">,</span>
+                  <span class="n">poolmask</span>  <span class="o">=</span> <span class="kc">None</span>  <span class="p">,</span>
+                  <span class="n">pbar</span>      <span class="o">=</span> <span class="kc">True</span>  <span class="p">,</span>
+                  <span class="n">verbose</span>   <span class="o">=</span> <span class="kc">False</span> <span class="p">)</span>
+
+<span class="c1"># To pandas df</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
 
 <span class="n">lats</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;degrees(lat)&quot;</span> <span class="p">]</span>
 <span class="n">lons</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;degrees(lon)&quot;</span> <span class="p">]</span>
@@ -216,6 +243,10 @@ by considering the example above, we add the part which plots the retrieved geop
 <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">ax_cb</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
+<span class="c1"># Close the databse</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">odb_close</span><span class="p">()</span>
+
+<span class="c1"># End</span>
 <span class="n">end</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 <span class="n">duration</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span>  <span class="n">start</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Runtime duration:&quot;</span> <span class="p">,</span> <span class="n">duration</span>  <span class="p">)</span>
@@ -238,7 +269,10 @@ forecast verification studies.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_retrieval.html" class="btn btn-neutral float-left" title="SQL query and data retrieval" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="open_odb_loop.html" class="btn btn-neutral float-right" title="Using odb4py inside loops" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

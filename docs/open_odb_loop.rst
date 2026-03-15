@@ -50,65 +50,65 @@ Recommended workflow:
    from datetime import datetime
 
    # Import odb4py 
-   from  odb4py.utils   import  OdbEnv ,  OdbObject  ,  StringParser
-   from  odb4py.core    import  odbConnect, odbClose , odbDca , odbDict
+   from  odb4py.utils   import  OdbObject , StringParser
+   from  odb4py.core    import  odb_open  ,odb_dict  , odb_close 
 
 
 
-   def Connect (db_path , db_name, ncpu ):
-       iret  = odbConnect ( odbdir =db_path+"/"+db_name   )
-       return iret
+   def Connect ( db_path , ncpu ):
+       conn = odb_open( database  =db_path   )
+       return conn  
 
-   def CreateDca (db_path ,db_name ,  NCPU=ncpu  ):
+   def CreateDca (conn, db_path ,db_name ,  NCPU=ncpu  ):
        # Create DCA if not there
-       if not os.path.isdir (dbpath+"/dca"):
-          ic =odbDca ( dbpath=db_path, db= db_name , ncpu=NCPU )
-       return ic 
+       if not os.path.isdir (db_path+"/dca"):
+          status =conn.odb_dca ( database=db_path, db= db_name , ncpu=NCPU )
+       return status 
 
 
 
-   def FetchData ( dbpath ,  query  ):
+   def FetchData (conn ,  dbpath ,  query  ):
        # Check the  query
        p      =StringParser()
-       nfunc  =p.ParseTokens ( query )    # Parse sql statement and get the number of functions
-       sql    =p.CleanString ( query  )   # Check and clean before sending !
-       nfunctions=nfunc
+       nfunc  =p.get_nfunc   ( query )    # Parse sql statement and get the number of functions
+       sql    =p.clean_string( query  )   # Check and clean before sending !
+       nf  =nfunc
+       pool= None 
        query_file= None
-       pool      = None
        
        # If the an error occurs while executing the query a RuntimeError Exception is raised !
        try:
-          rows =odbDict (database  = dbpath    ,
-                        sql_query = sql        ,
-                        nfunc     = nfunctions ,
-                        fmt_float = 10         ,
-                        pbar      = True       ,
-                        verbose   = False      ,
-                        queryfile = None       ,
-                        poolmask  = None  )                     
+          rows =conn.odbDict (database  = dbpath ,
+                        sql_query  = sql    ,
+                        nfunc      = nf     ,
+                        fmt_float  = 5      ,
+                        pbar       = True   ,
+                        verbose    = False  ,
+                        queryfile  = None   ,
+                        poolmask   = None  )                     
        except:
           RuntimeError
           print("Failed to get data from the ODB {}".format(dbpath) )
        return rows
 
 
-    # Script start runtime
+    # Script start time
     start = datetime.now()
 
     # Path to ODB directories
     # e.g : /path/to/odb/YYYYMMDDHH/CCMA 
     # Let's use the same ODBs from MetCoOp domain
-    odb_dir_location  = "/home/odb"
+    odb_dir_location  = "/home/user/odb"
 
     # The SQL query
     sql_query="select statid,\
-          degrees(lat)  ,\
-          degrees(lon)  ,\
-          varno         ,\
-          obsvalue      ,\
-          fg_depar      ,\
-          an_depar       \
-          FROM  hdr, body"
+              degrees(lat)  ,\
+              degrees(lon)  ,\
+              varno         ,\
+              obsvalue      ,\
+              fg_depar      ,\
+              an_depar       \
+              FROM  hdr, body WHERE an_depar is not NULL"
 
     # Set date/time period (20240110 00h00 --> 20240112 21h00 )
     yy= 2024
@@ -138,18 +138,24 @@ Recommended workflow:
           os.environ["ODB_IDXPATH_CCMA" ]=dbpath
           os.environ["IOASSIGN"  ]       =dbpath+"/"+"IOASSIGN"
 
-          # Connect
-          ic    = Connect  (dbpath ,dbname )
-          
+          # Connect and return the connection object 
+          conn= Connect  (dbpath ,dbname )
+                    
           # Create DCA 
-          i_dca = CreateDca(dbpath ,dbname , ncpu_dca )
-
+          try:
+             st = CreateDca(conn, dbpath ,dbname , ncpu_dca )
+          except:
+             Exception 
+             print("Failed to create DCA from the ODB {}".format(dbpath))
+             pass 
+         
           # Get the data
-          row_dict = FetchData  (dbpath , sql_query)
+          row_dict = FetchData  (conn, dbpath , sql_query)
 
           # Close the database 
-          odbClose()
+          conn.odb_close()
 
+    # End script runtime 
     end = datetime.now()
     duration = end - start
     print( "Runtime duration :" , duration )

@@ -3,7 +3,7 @@ odb4py documentation
 
 .. toctree::
     :maxdepth: 4
-    :caption: Contents:
+    :caption: Contents
 
     introduction 
     installation
@@ -13,3 +13,4 @@ odb4py documentation
     data_retrieval
     odb_in_python_ecosystem
     open_odb_loop
+    odb_conversion

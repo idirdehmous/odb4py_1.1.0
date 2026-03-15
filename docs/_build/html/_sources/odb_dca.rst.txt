@@ -1,7 +1,7 @@
-Creating Column Direct Access Files (DCA)
+Creating Column Direct Access files (DCA)
 =========================================
 In order to retrieve rows and columns efficiently, ODB relies on
-**DCA (Direct Column Access)** files.
+**DCA files (Direct Column Access)**.
 
 DCA files contain structural metadata describing how the data are
 physically stored on disk. This includes, for example:
@@ -13,19 +13,19 @@ physically stored on disk. This includes, for example:
 
 DCA files can be created automatically when using ODB binaries such as
 ``odbdump.x`` or ``odbsql.x``. They can also be generated explicitly
-using the ``dcagen`` script and/or the ``dcagen.x`` binary.
+using the ``dcagen`` script or the ``dcagen.x`` binary.
 
-Within the **odb4py** package, a dedicated function ``odbDca`` is provided to
+Within the **odb4py** package, a dedicated function ``odb_dca`` is provided to
 generate DCA files programmatically before executing a query.
 
 Creating DCA files is straightforward: the user must provide the path
-to the ODB database. The number of CPUs used for the task and the
+to the database. The number of CPUs used for the task and the
 verbosity level are optional parameters.
 
 The generated DCA files are written into a subdirectory named
-``dca`` inside the corresponding ``ECMA`` or ``CCMA`` directory.
+``dca`` inside the corresponding ``ECMA.<obtype>`` or ``CCMA`` directory.
 The function returns **0** if the connection succeeds or **-1** if it fails.
-Note that in the case of huge ODBs, creating the DCA files might take long time. For this reason, the ``odbDca`` has been optimized to create the dca files for the tables found inside each pool. In addition, the original options of the script ``dcagen`` can be introduced via a keyword argument called *extra_args* (please refer to the documentation of the ``dcagen`` script)
+Note that in the case of huge ODBs, creating the DCA files might take long time. For this reason, the ``odb_dca`` has been optimized to create the dca files for the tables found inside each pool (ONLY). In addition, the original options of the script ``dcagen`` can be introduced via a keyword argument called *extra_args* (please refer to the documentation of the ``dcagen`` script)
 
 
 .. code-block:: python 
@@ -33,37 +33,30 @@ Note that in the case of huge ODBs, creating the DCA files might take long time.
    #-*- coding: utf-8 -*-
    import os 
    
-   # Import 
+   # From  utils 
    from   odb4py.utils import odbObject 
-   from   odb4py.core  import odbConnect, odbDca 
 
+   # From  core module
+   from   odb4py.core  import odb_dca 
+
+   NCPU = 4
+   # Path  
    db_type  = "CCMA"
-   db_path  = "/path/to/odb"
-   dca_path = "/".join( ( dbpath, db_type, "dca" ) )
-   NCPU     = 4  # Let's use 4 CPUs 
+   db_path  = "/path/to/odb/CCMA"  # or ECMA.<obstype>
 
-   # Create the db object 
-   db = OdbObject("/path/to/ECMA.synop")
-   odb_attrs = db.GetAttrib()
-
-   # Get the tables in the pool(s)
-   odb_tables= odb_attrs["tables"]
-
-   # Open the database
-   iret = odbConnect(odbdir=dbpath )
-   # Check the return code
-   if iret < 0:
-      print("Failed to open the ODB database:", dbpath)
-      sys.exit(1)
+   # Get the attributes and use the available tables in pool(s)
+   db = OdbObject(dbpath)
+   db_attr  =db.get_attrib()
+   db_tables=db_attr["tables"]
 
 
    # Check if the files existe  (Maybe the ODB has been opened before)
    if not os.path.isdir (dca_path ):
-      ic =odbDca ( db_path =db_path, 
-                   db      = db_type, 
-                   ncpu    = NCPU ,
-                   extra_args=" -u ",  # -u means : Update DCA files if found 
-                   tables  = odb_tables 
+      ic =odb_dca (database  = db_path, 
+                   dbtype    = db_type, 
+                   ncpu      = NCPU ,       # Number of CPUs for parallel run 
+                   extra_args=" -u ",       # -u means : Update DCA files if found 
+                   tables    =  db_tables   # Use the one found from attributes 
                    ) 
       if ic < 0 :
          print("Failed to create DCA files")
@@ -75,30 +68,34 @@ If the verbose is set to *True* the following output is printed on the screen:
 .. code-block:: bash
 
    --odb4py : Creating DCA files...
-   --odb4py : dcagen runs with the command : /usr/local/lib/python3.10/dist-packages/odb4py/bin/dcagen -i 'samples/rmi/ECMA.synop/' -N 4 -q -u -z -P -t body -t conv -t conv_body -t desc -t errstat -t hdr -t index -t modsurf -t poolmask -t timeslot_index -t update_1 -t update_2 -t update_3
+   --odb4py : dcagen runs with the command : /usr/local/lib/python3.10/dist-packages/odb4py/bin/dcagen -i 'samples/rmi/ECMA.synop/' -N 4 -q -u -z -P -t body -t conv -t conv_body -t desc -t errstat -t hdr -t index -t modsurf -t poolmask -t timeslot_index
    --odb4py : The dca file will be created for the table :
-     body.dca
-     conv.dca
-     conv_body.dca
-     desc.dca
-     errstat.dca
-     hdr.dca
-     index.dca
-     modsurf.dca
-     poolmask.dca
-     timeslot_index.dca
-     update_1.dca
-     update_2.dca
-     update_3.dca
+   body.dca
+   conv.dca
+   conv_body.dca
+   desc.dca
+   errstat.dca
+   hdr.dca
+   index.dca
+   modsurf.dca
+   poolmask.dca
+   radar.dca
+   radar_body.dca
+   radar_station.dca
+   timeslot_index.dca
+   update_1.dca
+   update_2.dca
+   update_3.dca
+   update_4.dca
    --odb4py : DCA files creation done.
 
 .. note::
 
    If the table names are not explicitly provided, the underlying
    ``dcagen`` utility iterates over all possible ODB tables found in the metadata file *ECMA.dd* or *CCMA.dd*. 
-   By default in a standard ODB configuration, this corresponds to **386 tables**.
+   By default in a standard ODB configuration, this corresponds to **390 tables**.
 
-   In the example above, only **13 tables** are actually present in the
+   In the example above, only **17 tables** are actually present in the
    database. Therefore, not specifying the table list would cause
-   ``dcagen`` to loop over **386 tables instead of 13**, which may
+   ``dcagen`` to loop over all possible ODB tables, which may
    significantly increase the DCA generation time.

@@ -3,8 +3,10 @@ Inspect the ODB metadata
 
 **odb4py** provides two main modules:
 
-- **odb4py.core**: Low-level functions interfacing Python with the ODB runtime libraries.
-- **odb4py.utils**: Pure Python helper utilities to initialize the ODB environment, sanitize SQL queries, and manage auxiliary tasks.
+- **odb4py.core**   : Low-level functions interfacing Python with the ODB runtime libraries.
+- **odb4py.convert**: Read the ODB and converts the data rows into other formats such as NetCDF.   
+- **odb4py.utils**  : Pure Python helper utilities to initialize the ODB environment, sanitize SQL queries, and manage auxiliary tasks.
+  
 
 To retrieve the general attributes of an ODB database, only the directory and metadata files are parsed. 
 The attributes can be fetched individually or returned as a dictionary object.
@@ -12,10 +14,10 @@ The attributes can be fetched individually or returned as a dictionary object.
 In a Python script, a database object must first be instantiated using ``OdbObject`` (from the ``odb_ob.py`` module). 
 The following methods can then be used to retrieve metadata attributes:
 
-- ``GetBasename``
-- ``GetSize``
-- ``GetPools``
-- ``GetAttrib``
+- ``get_basename``
+- ``get_size``
+- ``get_pools``
+- ``get_attrib``
 
 Example of an RMI ODB database: **ECMA.synop**
 
@@ -23,9 +25,10 @@ Example of an RMI ODB database: **ECMA.synop**
 
    from odb4py import OdbObject
 
+   # Create a 'db' object 
    db = OdbObject("/path/to/ECMA.synop")
 
-   print(db.GetAttrib())
+   print(db.get_attrib())
 
 
 

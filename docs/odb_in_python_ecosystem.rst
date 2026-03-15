@@ -1,5 +1,5 @@
-Integration with python ecosystem
-=================================
+Integration with the python ecosystem
+======================================
 
 The choice to return query results as a Python dictionary is deliberate and central to the design of **odb4py**.
 
@@ -11,7 +11,7 @@ This enables users to perform:
  - Statistical analysis
  - Data filtering and aggregation
  - Visualization
- - Export to common formats (ODB2, NetCDF...)
+ - Export to the ODB flat format ODB2 using **pyodc**
 
 Let's consider the previous code by selecting all the observation types.
 
@@ -19,20 +19,33 @@ Let's consider the previous code by selecting all the observation types.
    
    #-*- coding: utf-8 -*-
    import pandas as pd  
+   from   dateime import datetime 
+
+   # utils  module 
    from odb4py.utils  import OdbObject , StringParser  
-   from odb4py.core   import odbDict ,odbConnect,odbClose , odbDca 
+
+   # core module 
+   from odb4py.core   import odb_dict 
+
+
+   # Start    
+   now = datetime.now()
+   
+   # The previous code 
+   ...   
    ...
 
    # SQL request 
    sql_query ="SELECT statid ,varno, degrees(lat), degrees(lon) , obsvalue FROM  hdr, body"
 
    # Execute SQL query
-   data = odbDict(dbpath, sql_query, fmt_float=6 , pbar=True )
+   data = conn.odb_dict(dbpath, sql_query, fmt_float=6 , pbar=True )
 
    # Convert to pandas DataFrame
    df = pd.DataFrame(data)
    print(df)
 
+   conn.odb_close()
    end  = datetime.now()
    duration = end -  start
    print("Runtime duration:" , duration  )
@@ -85,10 +98,11 @@ by considering the example above, we add the part which plots the retrieved geop
    import matplotlib.pyplot as plt
    from   mpl_toolkits.axes_grid1 import make_axes_locatable
    from   datetime import datetime 
+   import pandas as pd 
 
-
+   # odb4py utils and core 
    from  odb4py.utils  import  OdbObject,  StringParser  
-   from  odb4py.core   import  odbDict  ,  odbConnect, odbClose , odbDca
+   from  odb4py.core   import  odb_open , odb_dict  odb_dca 
 
    # Start 
    start = datetime.now()
@@ -97,15 +111,13 @@ by considering the example above, we add the part which plots the retrieved geop
    dbpath ="/path/to/CCMA"
    
    # Connect 
-   iret  = odbConnect ( odbdir = dbpath )
-   if iret < 0 :
-      print("Failed  to open the odb"  , dbpath )
-      sys.exit(0)
+   conn  = odb_open ( database = dbpath )
 
    # DCA files generation 
    if not os.path.isdir ( "/".join( ( dbpath, "dca")))  :
       NCPU=4
-      ic=odbDca ( dbpath=dbpath, db= "CCMA" , ncpu=NCPU  )
+      status =conn.odb_dca ( database=dbpath, dbtype= "CCMA" , ncpu=NCPU  )
+
 
    # Select SYNOP t2m  
    sql_query="select  statid ,\
@@ -116,23 +128,27 @@ by considering the example above, we add the part which plots the retrieved geop
               FROM hdr,body WHERE \
               obstype==1 and varno ==39" 
 
-   # Parse the query  
-   p      =StringParser()
-   nfunc  =p.ParseTokens ( sql_query )   
-   sql    =p.CleanString ( sql_query  )  
 
-   # Args 
-   nfunctions= nfunc    
-   query_file= None      
-   poolmask  = None    
-   progress  = True     
-   float_fmt = 10      
-   verbose   = False    
+   # Parse the query  
+   p   =StringParser()
+   nf  =p.get_nfunc    ( sql_query )   
+   sql =p.clean_string ( sql_query )  
+
 
    # Execute the query 
-   df = pd.DataFrame(  odbDict  (dbpath ,sql, nfunctions ,float_fmt,query_file , poolmask , progress    ) )
+   data=conn.odb_dict (   database  =dbpath   ,
+                     sql_query =sql_query,
+                     nfunc     =nf     ,
+                     fmt_float = 5     ,
+                     queryfile = None  ,
+                     poolmask  = None  ,
+                     pbar      = True  ,
+                     verbose   = False )
 
-   lats=df["degrees(lat)" ]
+   # To pandas df 
+   df = pd.DataFrame( data )
+
+   lats=df["degrees(lat)" ] 
    lons=df["degrees(lon)" ]
    obs =df["obsvalue@body"] 
 
@@ -160,6 +176,10 @@ by considering the example above, we add the part which plots the retrieved geop
    plt.colorbar(sc, cax=ax_cb)
    plt.show()
 
+   # Close the databse 
+   conn.odb_close()
+
+   # End 
    end  = datetime.now()
    duration = end -  start  
    print("Runtime duration:" , duration  )
